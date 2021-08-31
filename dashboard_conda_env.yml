@@ -1,0 +1,15 @@
+name: dashboard
+channels:
+  - defaults
+  - conda-forge
+dependencies:
+  - python=3.8
+  - matplotlib
+  - plotly
+  - networkx
+  - pandas
+  - colour
+  - sqlite
+  - dash-bootstrap-components
+  - dash_cytoscape
+  - pyarrow
