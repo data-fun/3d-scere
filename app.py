@@ -34,7 +34,7 @@ GO_terms = pd.read_csv("./static/GO_terms.csv")
 GO_terms_options = [{'label': GO, 'value': GO} for GO in GO_terms["GO_terms"]]
 
 plotly_segments = pd.read_csv("./static/plotly_segments.csv")
-adjacency_matrix = pd.read_parquet("./static/adjacency_matrix.parquet.gzip", engine='pyarrow')
+adjacency_matrix = pd.read_parquet("./static/adjacency_matrix_V4.parquet.gzip", engine='pyarrow')
 
 basic_stylesheet = [{
                      'selector': 'node',
