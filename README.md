@@ -44,3 +44,5 @@ wget -P ./static https://zenodo.org/blablablab/adjacency_matrix_V4.parquet.gzip
 ```
 python app.py
 ```
+
+then open your web browser on <http://127.0.0.1:8050/>
