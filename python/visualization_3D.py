@@ -64,7 +64,7 @@ def calcul_segment_size(segments_coordinates):
 
 def get_chromosome_lenght(chrom_number):
     #SQL request
-    db_connexion = sqlite3.connect('../SCERE.db')
+    db_connexion = sqlite3.connect('./static/SCERE.db')
 
     cursor = db_connexion.cursor()
 

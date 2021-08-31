@@ -55,7 +55,7 @@ app.config.suppress_callback_exceptions = True
 header = html.Div(
         [   dbc.Row(
             [
-                html.Img(src="./static/yeast_icon", height="70px"),
+                html.Img(src="./static/yeast_icon.png", height="70px"),
                 html.H1("Scere explore dashboard", style = {'padding-left' : '2%', 'padding-top' : '1%'})
             ])
         ],
@@ -486,7 +486,7 @@ ORDER BY Start_coordinate
        unfiltered_data = pd.DataFrame(data)
        filtered_data = unfiltered_data[str(column[0])]
        
-       loci = tools.get_locus_info("../SCERE.db", sql_query)
+       loci = tools.get_locus_info("./static/SCERE.db", sql_query)
        loci = loci.assign(FT_target = loci.Feature_name.isin(filtered_data))
        
        loci = loci[loci.FT_target == True].drop(["FT_target"], axis = 1)
@@ -525,7 +525,7 @@ GROUP BY SGDID
 ORDER BY Start_coordinate
 """
     all_loci = tools.get_locus_info("./static/SCERE.db", sql_query_gobal)
-    selected_loci = tools.get_locus_info("../SCERE.db", sql_query)
+    selected_loci = tools.get_locus_info("./static/SCERE.db", sql_query)
 
     if (column != []):
        unfiltered_data = pd.DataFrame(data)
@@ -562,7 +562,7 @@ def update_3D_graph_chrom_tab1(n_clicks):
 FROM SGD_features
 ORDER BY Start_coordinate
 """
-    selected_loci = tools.get_locus_info("../SCERE.db", sql_query)
+    selected_loci = tools.get_locus_info("./static/SCERE.db", sql_query)
 
     selected_loci_segments = plotly_segments.merge(selected_loci, on = "Primary_SGDID", how = "left", copy = False)
     selected_loci_segments.index = range(1, len(selected_loci_segments) + 1)
@@ -612,7 +612,7 @@ GROUP BY SGDID
 ORDER BY Start_coordinate
 """
 
-    whole_genome = tools.get_locus_info("../SCERE.db", sql_query)
+    whole_genome = tools.get_locus_info("./static/SCERE.db", sql_query)
 
     whole_genome_segments = plotly_segments.merge(whole_genome, on = "Primary_SGDID", how = "left", copy = False)
     whole_genome_segments.index = range(1, len(whole_genome_segments) + 1)
@@ -678,7 +678,7 @@ def update_network(n_clicks, input1, input2):
 FROM SGD_features
 """
 
-    Feature_name = tools.get_locus_info("../SCERE.db", sql_query)
+    Feature_name = tools.get_locus_info("./static/SCERE.db", sql_query)
     Feature_name = Feature_name.merge(genes_list, left_on = "Feature_name", right_on = genes_list.columns[0])
     
     nodes = [{'data': {'id': Primary_SGDID, 'label': Feature_name}}
@@ -718,7 +718,7 @@ def update_hist(n_clicks, input1, input2):
 FROM SGD_features
 """
 
-    Feature_name = tools.get_locus_info("../SCERE.db", sql_query)
+    Feature_name = tools.get_locus_info("./static/SCERE.db", sql_query)
     Feature_name = Feature_name.merge(genes_list, left_on = "Feature_name", right_on = genes_list.columns[0])
     
     adjacency_matrix_select = adjacency_matrix.loc[ Feature_name.Primary_SGDID, Feature_name.Primary_SGDID]

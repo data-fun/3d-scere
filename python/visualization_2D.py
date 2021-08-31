@@ -84,7 +84,7 @@ def format_coordinates(coordinates, space_between_chromosomes):
 
 def get_chromosome_lenght(chrom_number):
     #SQL request
-    db_connexion = sqlite3.connect('../SCERE.db')
+    db_connexion = sqlite3.connect('./static/SCERE.db')
 
     cursor = db_connexion.cursor()
 
