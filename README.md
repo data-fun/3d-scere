@@ -22,11 +22,6 @@ Load the `dashboard` conda environment:
 conda activate dashboard
 ```
 
-Optionally, install DB Browser for SQLite with `apt`:
-```
-grep -vE '^#' binder/apt.txt | xargs sudo apt install -y
-```
-
 ## Required static data
 
 Download the SQL database:
