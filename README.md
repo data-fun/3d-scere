@@ -26,3 +26,21 @@ Optionally, install DB Browser for SQLite with `apt`:
 ```
 grep -vE '^#' binder/apt.txt | xargs sudo apt install -y
 ```
+
+## Required static data
+
+Download the SQL database:
+```
+wget -P ./static https://zenodo.org/blablablab/SCERE.db
+```
+
+Download the distances matrix:
+```
+wget -P ./static https://zenodo.org/blablablab/adjacency_matrix_V4.parquet.gzip
+```
+
+## Run the dashboard
+
+```
+python app.py
+```
