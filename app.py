@@ -686,16 +686,15 @@ FROM SGD_features
         ]
     
     adjacency_matrix_select = adjacency_matrix.loc[ Feature_name.Primary_SGDID, Feature_name.Primary_SGDID]
-    adjacency_matrix_select.index.names = ["Primary_SGDID_bis"]
     
     edges_list = adjacency_matrix_select.stack().dropna().reset_index()
     edges_list = edges_list.sort_values(by = "Primary_SGDID_bis")
     edges_list.rename(columns = {0: "3D_distance"}, inplace = True)
     edges_list = edges_list.sort_values(by = "3D_distance")
     edges_list.index = range(1, len(edges_list) + 1)
-    
+    print(edges_list.iloc[:10,])
     edges = [{'data': {'source': source, 'target': target, 'weight': float(weight)}}
-             for source, target, weight in zip(edges_list["level_1"], edges_list["Primary_SGDID_bis"], edges_list["3D_distance"])
+             for source, target, weight in zip(edges_list["Primary_SGDID_bis"], edges_list["Primary_SGDID"], edges_list["3D_distance"])
             ]
     
     elements = nodes + edges
@@ -722,7 +721,6 @@ FROM SGD_features
     Feature_name = Feature_name.merge(genes_list, left_on = "Feature_name", right_on = genes_list.columns[0])
     
     adjacency_matrix_select = adjacency_matrix.loc[ Feature_name.Primary_SGDID, Feature_name.Primary_SGDID]
-    adjacency_matrix_select.index.names = ["Primary_SGDID_bis"]
     
     edges_list = adjacency_matrix_select.stack().dropna().reset_index()
     edges_list = edges_list.sort_values(by = "Primary_SGDID_bis")
