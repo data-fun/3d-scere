@@ -1,21 +1,13 @@
 import sys
-sys.path.insert(0, './python/')
+sys.path.insert(0, './lib/')
 
 import tools
 import visualization_2D as vis2D
 import visualization_3D as vis3D
 import pandas as pd
-import numpy as np
 import plotly.express as px
 import plotly.graph_objects as go
-import plotly.offline as pyo
-import sqlite3
-import math
-import random
-
 import networkx as nx
-import matplotlib.pyplot as plt
-import matplotlib.pyplot as plt
 
 import dash
 import dash_core_components as dcc
@@ -86,7 +78,7 @@ input_tab1 = html.Div(
                     'textAlign': 'center',
                     'margin': '10px'},
                     multiple=True),
-                    html.Div(id='output_data_upload_tab1'),
+                    dcc.Loading(children = [html.Div(id='output_data_upload_tab1')]),
                 ]),
                 dbc.Col(
                 [
@@ -144,7 +136,7 @@ input_tab2 = html.Div(
                     'textAlign': 'center',
                     'margin': '10px'},
                     multiple=True),
-                    html.Div(id='output_data_upload_tab2'),
+                    dcc.Loading(children = [html.Div(id='output_data_upload_tab2')]),
                 ]),
                 dbc.Col(
                 [
@@ -188,7 +180,7 @@ input_tab3 = html.Div(
                     'textAlign': 'center',
                     'margin': '10px'},
                     multiple=True),
-                    html.Div(id='output_data_upload_tab3'),
+                    dcc.Loading(children = [html.Div(id='output_data_upload_tab3')]),
                 ]),
                 dbc.Col(
                 [
@@ -232,7 +224,7 @@ visualization_tab1 = html.Div(
                 dbc.Col(
                 [
                     html.H3('2D Visualization'),
-                    dcc.Graph(id = '2D_representation'),
+                    dcc.Loading(children = [dcc.Graph(id = '2D_representation')]),
                 ])
             ]),
             dbc.Row(
@@ -240,7 +232,7 @@ visualization_tab1 = html.Div(
                 dbc.Col(
                 [
                     html.H5('Chromosomes repartition'),
-                    dcc.Graph(id = 'Chromosomes_repartition'),
+                    dcc.Loading(children = [dcc.Graph(id = 'Chromosomes_repartition')]),
                 ])
             ]),
             dbc.Row(
@@ -248,7 +240,7 @@ visualization_tab1 = html.Div(
                 dbc.Col(
                 [
                     html.H3('3D Visualization'),
-                    dcc.Graph(id = '3D_representation'),
+                    dcc.Loading(children = [dcc.Graph(id = '3D_representation')]),
                 ])
             ]),
             dbc.Row(
@@ -267,7 +259,7 @@ visualization_tab2 = html.Div(
                 dbc.Col(
                 [
                     html.H3('3D Visualization'),
-                    dcc.Graph(id = '3D_representation_tab2'),
+                    dcc.Loading(children = [dcc.Graph(id = '3D_representation_tab2')]),
                 ])
             ])
         ],
@@ -288,7 +280,7 @@ visualization_tab3_hist = html.Div(
                      ]),
                     dbc.Col(
                      [html.H4('Selected genes'),
-                      dcc.Graph(id = 'Distance_hist')
+                      dcc.Loading(children = [dcc.Graph(id = 'Distance_hist')])
                      ])
                     ]),
                 ])
@@ -302,11 +294,11 @@ visualization_tab3_network = html.Div(
                 dbc.Col(
                 [
                     html.H3('Network visualization'),
-                    cyto.Cytoscape(id='network',
-                                   stylesheet=basic_stylesheet,
-                                   elements = [],
-                                   style={'width': '100%', 'height': '400px'},
-                                   layout={'name': "random"})
+                    dcc.Loading(children = [cyto.Cytoscape(id='network',
+                                                            stylesheet=basic_stylesheet,
+                                                            elements = [],
+                                                            style={'width': '100%', 'height': '400px'},
+                                                            layout={'name': "random"})])
                 ])
             ])
         ],
@@ -320,7 +312,7 @@ visualization_tab3_metrics = html.Div(
                     html.H3('Network metrics'),
                     html.Div(id='output_edges_number_tab3'),
                     html.Div(id='output_nodes_number_tab3'),
-                    dcc.Graph(id = 'Degrees_hist')
+                    dcc.Loading(children = [dcc.Graph(id = 'Degrees_hist')])
                 ])
             ])
         ],
@@ -375,17 +367,16 @@ def parse_contents(contents, filename, datatable_id):
         return html.Div([
             'There was an error processing this file.'
         ])
-
+    
     return html.Div([
         html.H5(filename),
-
         dash_table.DataTable(
             id=datatable_id,
             data=df.to_dict('records'),
             columns=[{'name': i, 'id': i, "selectable": True} for i in df.columns],
             page_size=10,
             column_selectable="multi",
-            selected_columns=[],
+            selected_columns=[df.columns[0]],
             style_cell={'textAlign': 'left'},
             style_data_conditional=[{'if': {'row_index': 'odd'},
                                      'backgroundColor': 'rgb(248, 248, 248)'}],
