@@ -1,4 +1,6 @@
 import sys
+
+from dash_html_components.Div import Div
 sys.path.insert(0, './lib/')
 
 import tools
@@ -19,8 +21,9 @@ from dash.dependencies import Input, Output, State
 import base64
 import io
 
-name = "Scere explore dashboard"
+name = "3D-Scere"
 fontawesome = 'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css'
+litera = 'https://cdn.jsdelivr.net/npm/bootswatch@4.5.2/dist/litera/bootstrap.min.css'
 
 GO_terms = pd.read_csv("./static/GO_terms.csv")
 GO_terms_options = [{'label': GO, 'value': GO} for GO in GO_terms["GO_terms"]]
@@ -38,7 +41,7 @@ colors = ["darkred", "red", "darkorange", "orange", "gold", "green",
           "mediumseagreen", "turquoise", "deepskyblue", "dodgerblue", 
           "blueviolet", "purple", "magenta", "deeppink", "crimson", "black"]
 
-app = dash.Dash(name=name, assets_folder="./assets", external_stylesheets=[dbc.themes.LUX, fontawesome])
+app = dash.Dash(name=name, assets_folder="./assets", external_stylesheets=[dbc.themes.LUX, litera])
 app.title = name
 app.config.suppress_callback_exceptions = True
 
@@ -48,15 +51,19 @@ header = html.Div(
         [   dbc.Row(
             [
                 html.Img(src="./static/yeast_icon.png", height="70px"),
-                html.H1("Scere explore dashboard", style = {'padding-left' : '2%', 'padding-top' : '1%'})
+                html.H1("3D-Scere", style = {'padding-left' : '2%', 'padding-top' : '1%'})
             ])
         ],
         style = {'padding-down' : '4%', 'padding-top' : '2%'})
 
 summary = html.Details([
-                        html.Summary([html.H3('Introduction')]),
-                        html.Div('[Introduction text]')
-                       ])
+                        html.Summary([html.H4('Introduction')]),
+                        html.Div("""3D-Scere is an open-source online tool for interactive visualization and exploration. 
+                                    This tool allows the visualization of any list of genes in the context of the 3D model of S. cerevisiae genome.
+                                    Further information can easily be added like functional annotations (GO terms) or gene expression measurements. 
+                                    Qualitative or quantitative functional properties are thus highlighted in the large-scale 3D context of the genome 
+                                    with only a few mouse clicks.""")
+                       ], open = True)
 
 ############APP_INPUTS_COMPONENTS############
 
@@ -65,7 +72,7 @@ input_tab1 = html.Div(
             [
                 dbc.Col(
                 [
-                    html.H4("csv file upload"),
+                    dbc.Row([html.H4("csv file upload", style = {'padding-right' : '2%', 'padding-left' : '2%'}), html.Abbr("\u003f\u20dd", title="Upload a one column .csv file with YORF")]),
                     dcc.Upload(id='upload_data_tab1', children=html.Div(
                     ['Drag and Drop or ',
                      html.A('Select Files')
@@ -89,7 +96,7 @@ input_tab1 = html.Div(
             [
                 dbc.Col(
                 [
-                    html.H4("Go Terms"),
+                    dbc.Row([html.H4("GO terms", style = {'padding-right' : '2%', 'padding-left' : '2%'}), html.Abbr("\u003f\u20dd", title="Choose a GO term to tag")]),
                     dcc.Dropdown(
                         id='GoTerm-dropdown',
                         options=GO_terms_options,
@@ -97,7 +104,7 @@ input_tab1 = html.Div(
                 ]),
                 dbc.Col(
                 [
-                    html.H4("Color"),
+                    dbc.Row([html.H4("Color", style = {'padding-right' : '2%', 'padding-left' : '2%'}), html.Abbr("\u003f\u20dd", title="Choose the tagging color of the GO term")]),
                     dcc.Dropdown(
                         id='color-dropdown',
                         options=[
@@ -123,7 +130,7 @@ input_tab2 = html.Div(
             [
                 dbc.Col(
                 [
-                    html.H4("csv file upload"),
+                    dbc.Row([html.H4("csv file upload", style = {'padding-right' : '2%', 'padding-left' : '2%'}), html.Abbr("\u003f\u20dd", title="Upload a .csv file with YORF in the first column")]),
                     dcc.Upload(id='upload_data_tab2', children=html.Div(
                     ['Drag and Drop or ',
                      html.A('Select Files')
@@ -140,7 +147,7 @@ input_tab2 = html.Div(
                 ]),
                 dbc.Col(
                 [
-                    html.H4("Color scale"),
+                    dbc.Row([html.H4("Color scale", style = {'padding-right' : '2%', 'padding-left' : '2%'}), html.Abbr("\u003f\u20dd", title="Choose a colorscale")]),
                     dcc.Dropdown(
                         id='color_scale_dropdown',
                         options=[
@@ -327,17 +334,29 @@ app.layout = dbc.Container(
         summary,
         dbc.Row(style = {'height' : 25}),
         dcc.Tabs([
-        dcc.Tab(label='Tab one', children=[
+        dcc.Tab(label='GO term projection', children=[
+            dbc.Row(style = {'height' : 45}),
+            html.Div("""The projected list of genes can be colored uniformly or according to a selected GO term.
+                        Upload the genes list as a one column .csv file containing YORF, then click the submit button.
+                        To simultaneously color genes associated to a given GO term, select it with an associated color before clicking on submit."""),
             dbc.Row(style = {'height' : 45}),
             input_tab1,
             visualization_tab1
         ]),
-        dcc.Tab(label='Tab two', children=[
+        dcc.Tab(label='Quantitative variable projection', children=[
+            dbc.Row(style = {'height' : 45}),
+            html.Div("""The projected list of genes can be colored according to a given quantitative variable.
+                        Upload the genes list as a .csv file, with YORF in the first column. Then select the column corresponding the quantitative variable and a color scale before
+                        clicking on submit."""),
             dbc.Row(style = {'height' : 45}),
             input_tab2,
             visualization_tab2
         ]),
-        dcc.Tab(label='Tab three', children=[
+        dcc.Tab(label='3D distances histogram and network', children=[
+            dbc.Row(style = {'height' : 45}),
+            html.Div("""All the 3D distances between genes in the list are summarized into a histogram and a network.
+                        Upload the genes list as a one column .csv file containing YORF, then click the submit button. 
+                        The slider determines the threshold under witch 3D distances are used to construct the network."""),
             dbc.Row(style = {'height' : 45}),
             input_tab3,
             slider_tab3,
