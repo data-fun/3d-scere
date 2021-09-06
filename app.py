@@ -30,7 +30,7 @@ GO_terms = pd.read_csv("./static/GO_terms.csv")
 GO_terms_options = [{'label': GO, 'value': GO} for GO in GO_terms["GO_terms"]]
 
 plotly_segments = pd.read_csv("./static/plotly_segments.csv")
-adjacency_matrix = pd.read_parquet("./static/adjacency_matrix_V4.parquet.gzip", engine='pyarrow')
+distances_matrix = pd.read_parquet("./static/distances_matrix.parquet.gzip", engine='pyarrow')
 
 basic_stylesheet = [{
                      'selector': 'node',
@@ -658,9 +658,9 @@ FROM SGD_features
          for Primary_SGDID, Feature_name in zip(Feature_name["Primary_SGDID"], Feature_name["Feature_name"])
         ]
     
-    adjacency_matrix_select = adjacency_matrix.loc[ Feature_name.Primary_SGDID, Feature_name.Primary_SGDID]
+    distances_matrix_select = distances_matrix.loc[ Feature_name.Primary_SGDID, Feature_name.Primary_SGDID]
     
-    edges_list = adjacency_matrix_select.stack().dropna().reset_index()
+    edges_list = distances_matrix_select.stack().dropna().reset_index()
     edges_list = edges_list.sort_values(by = "Primary_SGDID_bis")
     edges_list.rename(columns = {0: "3D_distance"}, inplace = True)
     edges_list = edges_list.sort_values(by = "3D_distance")
@@ -693,9 +693,9 @@ FROM SGD_features
     Feature_name = tools.get_locus_info("./static/SCERE.db", sql_query)
     Feature_name = Feature_name.merge(genes_list, left_on = "Feature_name", right_on = genes_list.columns[0])
     
-    adjacency_matrix_select = adjacency_matrix.loc[ Feature_name.Primary_SGDID, Feature_name.Primary_SGDID]
+    distances_matrix_select = distances_matrix.loc[ Feature_name.Primary_SGDID, Feature_name.Primary_SGDID]
     
-    edges_list = adjacency_matrix_select.stack().dropna().reset_index()
+    edges_list = distances_matrix_select.stack().dropna().reset_index()
     edges_list = edges_list.sort_values(by = "Primary_SGDID_bis")
     edges_list.rename(columns = {0: "3D_distances"}, inplace = True)
     edges_list = edges_list.sort_values(by = "3D_distances")

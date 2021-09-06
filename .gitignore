@@ -1,3 +1,3 @@
 lib/__pycache__
 static/SCERE.db
-static/adjacency_matrix_V4.parquet.gzip
+static/3D_distances_matrix.parquet.gzip
