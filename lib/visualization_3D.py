@@ -1,11 +1,10 @@
 import math
 import matplotlib
-import matplotlib.pyplot as plt 
+import matplotlib.pyplot
 import numpy as np
 import pandas as pd
 import plotly
 import plotly.graph_objects as go
-import plotly.express as px
 import sqlite3
 
 
@@ -216,8 +215,3 @@ def genome_drawing(whole_genome_segments):
     fig.update_layout(height=800)
     
     return fig
-
-
-
-
-

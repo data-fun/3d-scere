@@ -174,7 +174,7 @@ input_tab3 = html.Div(
             [
                 dbc.Col(
                 [
-                    html.H4("csv file upload"),
+                    dbc.Row([html.H4("csv file upload", style = {'padding-right' : '2%', 'padding-left' : '2%'}), html.Abbr("\u003f\u20dd", title="Upload a one column .csv file with YORF")]),
                     dcc.Upload(id='upload_data_tab3', children=html.Div(
                     ['Drag and Drop or ',
                      html.A('Select Files')
@@ -338,7 +338,7 @@ app.layout = dbc.Container(
             dbc.Row(style = {'height' : 45}),
             html.Div("""The projected list of genes can be colored uniformly or according to a selected GO term.
                         Upload the genes list as a one column .csv file containing YORF, then click the submit button.
-                        To simultaneously color genes associated to a given GO term, select it with an associated color before clicking on submit."""),
+                        To simultaneously color genesin the list that are associated to a given GO term, select it with an associated color before clicking on submit."""),
             dbc.Row(style = {'height' : 45}),
             input_tab1,
             visualization_tab1
@@ -472,11 +472,11 @@ ORDER BY Start_coordinate
        loci.loc[(loci.GO_slim_term == str(GoTerm)) & (loci.FT_target == True), "colors_parameters"] = str(GoTerm)
        
        loci = vis2D.format_coordinates(loci, 6) 
-       fig = vis2D.genome_drawing(loci, "discreet", "colors_parameters", [str(GoTerm), "Targets"], [str(color), "Black"])
+       fig = vis2D.genome_drawing(loci, "colors_parameters", [str(GoTerm), "Targets"], [str(color), "Black"])
        
     else :
        loci = vis2D.format_coordinates(loci, 6)
-       fig = vis2D.genome_drawing(loci, "discreet", "GO_slim_term", [str(GoTerm)], [str(color)])
+       fig = vis2D.genome_drawing(loci, "GO_slim_term", [str(GoTerm)], [str(color)])
     
     return fig
 

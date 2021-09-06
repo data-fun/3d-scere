@@ -1,10 +1,7 @@
-import math
 import matplotlib
-import matplotlib.pyplot as plt 
 import numpy as np
 import pandas as pd
 import plotly
-import plotly.graph_objects as go
 import plotly.express as px
 import sqlite3
 
@@ -18,9 +15,6 @@ def display_module_version():
     print("numpy version:", np.__version__)
     print("plotly version:", plotly.__version__)
     print("ipywidgets version:", widgets.__version__)
-
-
-
 
 def format_coordinates(coordinates, space_between_chromosomes):
     """Format the locus coordinates for Plotly visualization. 
@@ -78,11 +72,20 @@ def format_coordinates(coordinates, space_between_chromosomes):
         
     return genome_data
 
-
-
 # Chromosome shapes.
 
 def get_chromosome_lenght(chrom_number):
+    """Get the chromosome length from the SQL database.
+
+    Parameters
+    ----------
+    chrom_number : int
+
+    Returns
+    -------
+    int
+    """
+
     #SQL request
     db_connexion = sqlite3.connect('./static/SCERE.db')
 
@@ -99,7 +102,24 @@ def get_chromosome_lenght(chrom_number):
     return chromosome_length.loc[chrom_number][0]
 
 def format_chromosomes(y1, y2):
+    """Format the chromosomes coordinates for Plotly visualization. 
     
+    Each chromosome is represented by three rows: 
+    x1, x2 (the two values are in the column x) and none.
+    The third row allow the separation between lines.
+
+    Parameters
+    ----------
+    y1 : list
+        List containing chromosomes y coordinates (+ strand).
+    y2 : list
+        List containing chromosomes y coordinates (- strand).
+    
+    Returns
+    -------
+    Pandas dataframe
+    """
+
     chromosomes = pd.DataFrame(columns = ["x", "y", "Chromosome"])
     
     for c in range(1,18):
@@ -134,64 +154,41 @@ def format_chromosomes(y1, y2):
 
 # Genome drawing.
 
-def genome_drawing(genome_data, mode, parameter, 
-                   values = "null", values_colors = "null", threshold = 10**40, hover = []):
-    
+def genome_drawing(genome_data, parameter, values = "null", values_colors = "null", hover = []):
+    """Draw the 2D plotly figure, representing the 16 chromosomes (+ mitochondrial plasmid) in lightgrey and all the loci in darkgrey.
+
+    Parameters
+    ----------
+    genome_data : Pandas dataframe
+        2D coordinates of all the loci for Plotly visualization.
+    parameter : str
+        The name of the genome_data column containing the coloring parameter.
+    values : list
+        The values in genome_data[parameter] that will be colored according to values_colors.
+    values_colors : str
+        A list of color names. Loci with values[0] in the column genome_data[parameter] will be colored in values_colors[0].
+    hover : list
+
+    Returns
+    -------
+    Plotly figure
+    """
+
     chromosomes = format_chromosomes(list(i + 0.2 for i in range(0,108,6)), list(i - 0.2 for i in range(0,108,6)))
     
     genome_data = chromosomes.append(genome_data)
     genome_data.index = range(1, len(genome_data) + 1)
-    
-    
-    if mode == "continuous":
-        colors = get_color_continuous(genome_data[parameter])
-        colors.index = range(1, len(colors) + 1)
+
+    genome_data = get_color_discreet(genome_data, parameter, values)
+
+    color_discrete_map = dict(zip(values, values_colors))
         
-        genome_data["colors"] = colors
-        
-        fig = px.line(genome_data,
-                      x = "x",
-                      y = "y",
-                      color = "colors",
-                      color_discrete_map = "identity", 
-                      hover_name = "Primary_SGDID")
-    
-    if mode == "semi_continuous":
-        
-        colors_and_intervals = get_color_semi_continuous(genome_data[parameter], threshold)
-        colors = colors_and_intervals[0]
-        colors.index = range(1, len(colors) + 1)
-        genome_data[parameter] = colors
-        
-        intervals = colors_and_intervals[1]
-        color_discrete_map = zip(intervals, px.colors.sequential.Viridis_r)
-        color_discrete_map = dict(color_discrete_map)
-        color_discrete_map = { "null": "lightgrey", **color_discrete_map}
-        
-        hover_formating = [True] * len(hover)
-        hover_data = dict(zip(hover, hover_formating))
-        
-        fig = px.line(genome_data,
-                      x = "x",
-                      y = "y",
-                      color = parameter,
-                      color_discrete_map = color_discrete_map, 
-                      hover_name = "Primary_SGDID", 
-                      hover_data = {**hover_data, "y": False})
-                    #no order in legend because locus are not drawed when there is an order
-    
-    if mode == "discreet":
-        
-        genome_data = get_color_discreet(genome_data, parameter, values)
-        
-        color_discrete_map = dict(zip(values, values_colors))
-        
-        fig = px.line(genome_data,
-                      x = "x",
-                      y = "y",
-                      color = "colors", 
-                      color_discrete_map = {"Other": "darkgrey", "Background": "lightgrey", **color_discrete_map},
-                      hover_name = "Primary_SGDID")
+    fig = px.line(genome_data,
+                    x = "x",
+                    y = "y",
+                    color = "colors", 
+                    color_discrete_map = {"Other": "darkgrey", "Background": "lightgrey", **color_discrete_map},
+                    hover_name = "Primary_SGDID")
 
     fig.update_traces(line = dict(width = 9))
     
@@ -215,7 +212,21 @@ def genome_drawing(genome_data, mode, parameter,
 # Adding color.
 
 def get_color_discreet(genome_data, parameter, values):
-    
+    """Create a column "colors" used by Plotly as a reference for the color_discrete_map.
+
+    Parameters
+    ----------
+    genome_data : Pandas dataframe
+        2D coordinates of all the loci for Plotly visualization.
+    parameter : str
+        The name of the genome_data column containing the coloring parameter.
+    values : list
+        The values in genome_data[parameter] that will be colored according to values_colors.
+
+    Returns
+    -------
+    Pandas dataframe
+    """
     genome_data.loc[genome_data[parameter] != values[0], "colors"] = "Other"
     
     for v in values :
@@ -224,58 +235,3 @@ def get_color_discreet(genome_data, parameter, values):
     genome_data.loc[genome_data["Chromosome"] == 0, "colors"] = "Background"
     
     return genome_data
-
-def get_color_semi_continuous(parameter, threshold):
-    
-    parameter = parameter.apply(float)
-    parameter.index = range(1, len(parameter) + 1)
-    limit = min(parameter.max(), threshold)
-    STEP = (limit/9)
-    
-    conditions = [(parameter <= STEP), (parameter <= STEP * 2), (parameter <= STEP * 3),
-                  (parameter <= STEP * 4), (parameter <= STEP * 5), (parameter <= STEP * 6), 
-                  (parameter <= STEP * 7), (parameter <= STEP * 8), (parameter <= STEP * 9), 
-                  (parameter > STEP * 9)]
-    
-    choices = ["0-" + str(round(STEP)), 
-               str(round(STEP)) + "-" + str(round(STEP * 2)), 
-               str(round(STEP * 2)) + "-" + str(round(STEP * 3)), 
-               str(round(STEP * 3)) + "-" + str(round(STEP * 4)), 
-               str(round(STEP * 4)) + "-" + str(round(STEP * 5)), 
-               str(round(STEP * 5)) + "-" + str(round(STEP * 6)), 
-               str(round(STEP * 6)) + "-" + str(round(STEP * 7)), 
-               str(round(STEP * 7)) + "-" + str(round(STEP * 8)), 
-               str(round(STEP * 8)) + "-" + str(round(STEP * 9)), 
-               str(round(STEP * 9)) + "<"]
-    
-    
-    right_parameter = np.select(conditions, choices, default = "null")
-    
-    return [pd.Series(right_parameter), choices]
-
-def get_color_continuous(parameter):
-    cmap = matplotlib.cm.get_cmap('viridis')
-    parameter = parameter.apply(float)
-    MIN = min(parameter)
-    MAX = max(parameter)
-    colors = []
-
-    for i in range(1, len(parameter)+1):
-        
-        if parameter[i] == 0 or parameter[i] == "" or parameter[i] == "NaN" :
-            color = "lightgrey"
-            colors = colors + [color]
-        
-        else :
-            color = cmap((parameter[i] - MIN) / (MAX - MIN))
-            color = "rgb" + str(color[:3])
-            
-            colors = colors + [color]
-    
-    return pd.Series(colors)
-
-
-
-
-
-
