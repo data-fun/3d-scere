@@ -15,11 +15,12 @@ import dash
 import dash_core_components as dcc
 import dash_html_components as html
 import dash_bootstrap_components as dbc
-import dash_table
 import dash_cytoscape as cyto
 from dash.dependencies import Input, Output, State
-import base64
-import io
+
+########################
+############APP_INITIALIZATION############
+########################
 
 name = "3D-Scere"
 fontawesome = 'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css'
@@ -44,6 +45,10 @@ colors = ["darkred", "red", "darkorange", "orange", "gold", "green",
 app = dash.Dash(name=name, assets_folder="./assets", external_stylesheets=[dbc.themes.LUX, litera])
 app.title = name
 app.config.suppress_callback_exceptions = True
+
+########################
+############DASHBOARD_LAYOUT############
+########################
 
 ############APP_HEADER############
 
@@ -238,7 +243,7 @@ visualization_tab1 = html.Div(
             [
                 dbc.Col(
                 [
-                    html.H5('Chromosomes repartition'),
+                    html.H3('Chromosomes repartition'),
                     dcc.Loading(children = [dcc.Graph(id = 'Chromosomes_repartition')]),
                 ])
             ]),
@@ -338,7 +343,7 @@ app.layout = dbc.Container(
             dbc.Row(style = {'height' : 45}),
             html.Div("""The projected list of genes can be colored uniformly or according to a selected GO term.
                         Upload the genes list as a one column .csv file containing YORF, then click the submit button.
-                        To simultaneously color genesin the list that are associated to a given GO term, select it with an associated color before clicking on submit."""),
+                        To simultaneously color genes in the list that are associated to a given GO term, select it with an associated color before clicking on submit."""),
             dbc.Row(style = {'height' : 45}),
             input_tab1,
             visualization_tab1
@@ -367,48 +372,6 @@ app.layout = dbc.Container(
         ])
       ])
 
-############UPLOAD_PARSING############
-
-def parse_contents(contents, filename, datatable_id):
-    content_type, content_string = contents.split(',')
-
-    decoded = base64.b64decode(content_string)
-    try:
-        if 'csv' in filename:
-            # Assume that the user uploaded a CSV file
-            df = pd.read_csv(
-                io.StringIO(decoded.decode('utf-8')))
-        elif 'xls' in filename:
-            # Assume that the user uploaded an excel file
-            df = pd.read_excel(io.BytesIO(decoded))
-    except Exception as e:
-        print(e)
-        return html.Div([
-            'There was an error processing this file.'
-        ])
-    
-    return html.Div([
-        html.H5(filename),
-        dash_table.DataTable(
-            id=datatable_id,
-            data=df.to_dict('records'),
-            columns=[{'name': i, 'id': i, "selectable": True} for i in df.columns],
-            page_size=10,
-            column_selectable="multi",
-            selected_columns=[df.columns[0]],
-            style_cell={'textAlign': 'left'},
-            style_data_conditional=[{'if': {'row_index': 'odd'},
-                                     'backgroundColor': 'rgb(248, 248, 248)'}],
-            style_header={'backgroundColor': 'rgb(230, 230, 230)',
-                          'fontWeight': 'bold'}),
-
-        html.Hr(),  # horizontal line
-
-        # For debugging, display the raw contents provided by the web browser
-        #html.Div('Raw Content'),
-        #html.Pre(contents[0:200] + '...', style={'whiteSpace': 'pre-wrap','wordBreak': 'break-all'})
-    ])
-
 ########################
 ############CALLBACKS############
 ########################
@@ -420,7 +383,7 @@ def parse_contents(contents, filename, datatable_id):
 def update_output(list_of_contents, list_of_names):
     if list_of_contents is not None:
         children = [
-            parse_contents(c, n, "datatable_tab1") for c, n in
+            tools.parse_contents(c, n, "datatable_tab1") for c, n in
             zip(list_of_contents, list_of_names)]
         return children
 
@@ -480,7 +443,7 @@ ORDER BY Start_coordinate
     
     return fig
 
-############TAB1_CHROM_REPARTITION############
+############TAB1_CHROMOSOME_REPARTITION############
 @app.callback(Output('Chromosomes_repartition', 'figure'),
               Input('Submit_tab1', 'n_clicks'),
               State('datatable_tab1', 'derived_virtual_data'),
@@ -548,9 +511,9 @@ ORDER BY Start_coordinate
        
        loci_segments = plotly_segments.merge(loci, on = "Primary_SGDID", how = "left", copy = False)
        loci_segments.index = range(1, len(loci_segments) + 1)
-    
+       print(loci_segments)
        loci_segments = vis3D.get_color_discreet_3D(loci_segments, "colors_parameters", [str(GoTerm), "Targets"], [str(color), "blue"])
-       
+       print(loci_segments)
        fig = vis3D.genome_drawing(loci_segments)
        
     else :
@@ -588,11 +551,11 @@ ORDER BY Start_coordinate
 def update_output_tab2(list_of_contents, list_of_names):
     if list_of_contents is not None:
         children = [
-            parse_contents(c, n, "datatable") for c, n in
+            tools.parse_contents(c, n, "datatable") for c, n in
             zip(list_of_contents, list_of_names)]
         return children
 
-############TAB2_UPLOAD############
+############TAB2_COLUMN_SELECTION_UPLOAD############
 @app.callback(
     Output('datatable', 'style_data_conditional'),
     Input('datatable', 'selected_columns')
@@ -658,7 +621,7 @@ ORDER BY Start_coordinate
 def update_output(list_of_contents, list_of_names):
     if list_of_contents is not None:
         children = [
-            parse_contents(c, n, "datatable_tab3") for c, n in
+            tools.parse_contents(c, n, "datatable_tab3") for c, n in
             zip(list_of_contents, list_of_names)]
         return children
 
