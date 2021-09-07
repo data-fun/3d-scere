@@ -31,7 +31,6 @@ GO_terms = pd.read_csv("./static/GO_terms.csv")
 GO_terms_options = [{'label': GO, 'value': GO} for GO in GO_terms["GO_terms"]]
 
 plotly_segments = pd.read_csv("./static/plotly_segments.csv")
-distances_matrix = pd.read_parquet("./static/distances_matrix.parquet.gzip", engine='pyarrow')
 edges_list = pd.read_parquet("./static/3D_distances.parquet.gzip", engine='pyarrow')
 
 # Get all features for all gene
@@ -662,20 +661,15 @@ FROM SGD_features
          for Primary_SGDID, Feature_name in zip(Feature_name["Primary_SGDID"], Feature_name["Feature_name"])
         ]
     
-    distances_matrix_select = distances_matrix.loc[ Feature_name.Primary_SGDID, Feature_name.Primary_SGDID]
-    
-    edges_list = distances_matrix_select.stack().dropna().reset_index()
-    edges_list = edges_list.sort_values(by = "Primary_SGDID_bis")
-    edges_list.rename(columns = {0: "3D_distance"}, inplace = True)
-    edges_list = edges_list.sort_values(by = "3D_distance")
-    edges_list.index = range(1, len(edges_list) + 1)
+    edges_list_select = tools.get_edges_list(genes_list, edges_list, all_feature_name)
+
     edges = [{'data': {'source': source, 'target': target, 'weight': float(weight)}}
-             for source, target, weight in zip(edges_list["Primary_SGDID_bis"], edges_list["Primary_SGDID"], edges_list["3D_distance"])
+             for source, target, weight in zip(edges_list_select["Primary_SGDID_bis"], edges_list_select["Primary_SGDID"], edges_list_select["3D_distances"])
             ]
     
     elements = nodes + edges
-    slider_max = max(edges_list["3D_distance"])
-    slider_min = min(edges_list["3D_distance"])
+    slider_max = max(edges_list_select["3D_distances"])
+    slider_min = min(edges_list_select["3D_distances"])
     
     return elements, slider_max, slider_min
 
