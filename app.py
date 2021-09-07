@@ -7,6 +7,7 @@ import tools
 import visualization_2D as vis2D
 import visualization_3D as vis3D
 import pandas as pd
+import numpy as np
 import plotly.express as px
 import plotly.graph_objects as go
 import networkx as nx
@@ -31,6 +32,21 @@ GO_terms_options = [{'label': GO, 'value': GO} for GO in GO_terms["GO_terms"]]
 
 plotly_segments = pd.read_csv("./static/plotly_segments.csv")
 distances_matrix = pd.read_parquet("./static/distances_matrix.parquet.gzip", engine='pyarrow')
+edges_list = pd.read_parquet("./static/3D_distances.parquet.gzip", engine='pyarrow')
+
+# Get all features for all gene
+sql_query = \
+"""SELECT Primary_SGDID, Standard_gene_name, Chromosome, Feature_name, Strand, Stop_coordinate, Start_coordinate, Description
+FROM SGD_features
+"""
+all_feature_name = tools.get_locus_info("./static/SCERE.db", sql_query)
+
+#3D distance histogram constants
+bin_number = 50
+all_x = list(edges_list["3D_distances"])
+H2, X = np.histogram(all_x, bins = bin_number, range = (0, 200))
+H2 = H2/len(all_x)
+F2 = np.cumsum(H2)/sum(H2)
 
 basic_stylesheet = [{
                      'selector': 'node',
@@ -282,20 +298,10 @@ visualization_tab3_hist = html.Div(
             [
                 dbc.Col(
                 [
-                    html.H3('Distance histograms'),
-                    dbc.Row(style = {'height' : 10}),
-                    dbc.Row(
-                    [dbc.Col(
-                     [html.H4('Whole genome'),
-                      dbc.Row(style = {'height' : 40}),
-                      html.Img(src="./static/whole_genome_hist.png", height="360px", width="480px")
-                     ]),
-                    dbc.Col(
-                     [html.H4('Selected genes'),
-                      dcc.Loading(children = [dcc.Graph(id = 'Distance_hist')])
-                     ])
-                    ]),
-                ])
+                html.H3('3D distances histogram'),
+                dbc.Row(style = {'height' : 10}),
+                dcc.Loading(children = [html.Img(id = 'hist', src = '')])
+                ]),
             ])
         ],
         className = 'shadow p-3 mb-5 bg-body rounded', style = {'padding-top' : '1%'})
@@ -511,9 +517,7 @@ ORDER BY Start_coordinate
        
        loci_segments = plotly_segments.merge(loci, on = "Primary_SGDID", how = "left", copy = False)
        loci_segments.index = range(1, len(loci_segments) + 1)
-       print(loci_segments)
        loci_segments = vis3D.get_color_discreet_3D(loci_segments, "colors_parameters", [str(GoTerm), "Targets"], [str(color), "blue"])
-       print(loci_segments)
        fig = vis3D.genome_drawing(loci_segments)
        
     else :
@@ -665,7 +669,6 @@ FROM SGD_features
     edges_list.rename(columns = {0: "3D_distance"}, inplace = True)
     edges_list = edges_list.sort_values(by = "3D_distance")
     edges_list.index = range(1, len(edges_list) + 1)
-    print(edges_list.iloc[:10,])
     edges = [{'data': {'source': source, 'target': target, 'weight': float(weight)}}
              for source, target, weight in zip(edges_list["Primary_SGDID_bis"], edges_list["Primary_SGDID"], edges_list["3D_distance"])
             ]
@@ -677,41 +680,19 @@ FROM SGD_features
     return elements, slider_max, slider_min
 
 ############TAB3_HIST############
-@app.callback(Output('Distance_hist', 'figure'),
+@app.callback(Output('hist', component_property='src'),
               Input('Submit_tab3', 'n_clicks'),
               Input("treshold_slider", "value"),
               State('datatable_tab3', 'derived_virtual_data'))
 def update_hist(n_clicks, input1, input2):
 
     genes_list = pd.DataFrame(input2)
-    
-    sql_query = \
-"""SELECT Primary_SGDID, Chromosome, Feature_name, Strand, Stop_coordinate, Start_coordinate
-FROM SGD_features
-"""
 
-    Feature_name = tools.get_locus_info("./static/SCERE.db", sql_query)
-    Feature_name = Feature_name.merge(genes_list, left_on = "Feature_name", right_on = genes_list.columns[0])
-    
-    distances_matrix_select = distances_matrix.loc[ Feature_name.Primary_SGDID, Feature_name.Primary_SGDID]
-    
-    edges_list = distances_matrix_select.stack().dropna().reset_index()
-    edges_list = edges_list.sort_values(by = "Primary_SGDID_bis")
-    edges_list.rename(columns = {0: "3D_distances"}, inplace = True)
-    edges_list = edges_list.sort_values(by = "3D_distances")
-    edges_list.index = range(1, len(edges_list) + 1)
-    
-    fig = px.histogram(edges_list, x="3D_distances", range_x=[-10, 210], nbins= 70, color_discrete_sequence=['#A0E8AF'])
-    
-    fig.update_layout(plot_bgcolor = "white", 
-                      xaxis_showgrid = False, 
-                      yaxis_showgrid = False, 
-                      showlegend = True)
-    fig.add_vline(x=input1, 
-                   line_width=3, 
-                   line_dash="dash", 
-                   line_color="black")
-    return fig
+    fig = tools.distri(genes_list, edges_list, all_feature_name, H2, F2, bin_number, input1)
+
+    out_url = tools.fig_to_uri(fig)
+
+    return out_url
 
 ############TAB3_NETWORK_TRESHOLD############
 @app.callback(Output('network', 'stylesheet'),
