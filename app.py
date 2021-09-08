@@ -22,9 +22,9 @@ from dash.dependencies import Input, Output, State
 ############APP_INITIALIZATION############
 ########################
 
-name = "3D-Scere"
-fontawesome = "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"
-litera = "https://cdn.jsdelivr.net/npm/bootswatch@4.5.2/dist/litera/bootstrap.min.css"
+NAME = "3D-Scere"
+FONTAWESOME = "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"
+LITERA = "https://cdn.jsdelivr.net/npm/bootswatch@4.5.2/dist/litera/bootstrap.min.css"
 
 GO_terms = pd.read_csv("./static/GO_terms.csv")
 GO_terms_options = [{"label": GO, "value": GO} for GO in GO_terms["GO_terms"]]
@@ -53,8 +53,8 @@ colors = ["darkred", "red", "darkorange", "orange", "gold", "green",
 "mediumseagreen", "turquoise", "deepskyblue", "dodgerblue",
 "blueviolet", "purple", "magenta", "deeppink", "crimson", "black"]
 
-app = dash.Dash(name=name, assets_folder="./assets", external_stylesheets=[dbc.themes.LUX, litera])
-app.title = name
+app = dash.Dash(name=NAME, assets_folder="./assets", external_stylesheets=[dbc.themes.LUX, LITERA])
+app.title = NAME
 app.config.suppress_callback_exceptions = True
 
 ########################
@@ -73,10 +73,10 @@ header = html.Div(
         style = {"padding-down": "4%", "padding-top": "2%"})
 
 summary = html.Details([html.Summary([html.H4("Introduction")]),
-                        html.Div("""3D-Scere is an open-source online tool for interactive visualization and exploration. 
+                        html.Div("""3D-Scere is an open-source online tool for interactive visualization and exploration.
                                     This tool allows the visualization of any list of genes in the context of the 3D model of S. cerevisiae genome.
-                                    Further information can easily be added like functional annotations (GO terms) or gene expression measurements. 
-                                    Qualitative or quantitative functional properties are thus highlighted in the large-scale 3D context of the genome 
+                                    Further information can easily be added like functional annotations (GO terms) or gene expression measurements.
+                                    Qualitative or quantitative functional properties are thus highlighted in the large-scale 3D context of the genome
                                     with only a few mouse clicks.""")
                         ], open = True)
 
@@ -145,7 +145,8 @@ input_tab2 = html.Div(
             [
                 dbc.Col(
                 [
-                    dbc.Row([html.H4("csv file upload", style={"padding-right" : "2%", "padding-left" : "2%"}), html.Abbr("\u003f\u20dd", title="Upload a .csv file with YORF in the first column")]),
+                    dbc.Row([html.H4("csv file upload", style={"padding-right" : "2%", "padding-left" : "2%"}),
+                    html.Abbr("\u003f\u20dd", title="Upload a .csv file with YORF in the first column")]),
                     dcc.Upload(id="upload_data_tab2", children=html.Div(
                     ["Drag and Drop or ",
                      html.A("Select Files")
@@ -229,7 +230,7 @@ slider_tab3 = html.Div(
                                max=10,
                                step=1,
                                value=5
-                              )  
+                              )
                 ]),
                 dbc.Col(
                 [
@@ -360,7 +361,7 @@ app.layout = dbc.Container(
         dcc.Tab(label="3D distances histogram and network", children=[
             dbc.Row(style={"height" : 45}),
             html.Div("""All the 3D distances between genes in the list are summarized into a histogram and a network.
-                        Upload the genes list as a one column .csv file containing YORF, then click the submit button. 
+                        Upload the genes list as a one column .csv file containing YORF, then click the submit button.
                         The slider determines the threshold under witch 3D distances are used to construct the network."""),
             dbc.Row(style={"height" : 45}),
             input_tab3,
@@ -401,11 +402,11 @@ def update_styles_tab1(selected_columns):
 @app.callback(Output("2D_representation", "figure"),
               Input("Submit_tab1", "n_clicks"),
               State("GoTerm-dropdown", "value"),
-              State("color-dropdown", "value"), 
+              State("color-dropdown", "value"),
               State("datatable_tab1", "derived_virtual_data"),
               State("datatable_tab1", "selected_columns"))
 def update_2D_graphs_tab1(n_clicks, GoTerm, color, data, column):
-    
+
     sql_query_gobal = \
 """SELECT Primary_SGDID, count(SGDID), Feature_name, Start_coordinate, Stop_coordinate, Chromosome, Strand, GO_slim_term
 FROM SGD_features, go_slim_mapping
@@ -417,30 +418,30 @@ ORDER BY Start_coordinate
 """SELECT Primary_SGDID, count(SGDID), Feature_name, Start_coordinate, Stop_coordinate, Chromosome, Strand, GO_slim_term
 FROM SGD_features, go_slim_mapping
 WHERE SGDID == Primary_SGDID
-AND (GO_slim_term == """ + """ + str(GoTerm) + """ + """)
+AND (GO_slim_term == """ + "'" + str(GoTerm) + "'" + """)
 GROUP BY SGDID
 ORDER BY Start_coordinate
 """
     all_loci = tools.get_locus_info("./static/SCERE.db", sql_query_gobal)
     selected_loci = tools.get_locus_info("./static/SCERE.db", sql_query_specific)
-    
+
     loci = pd.concat([all_loci, selected_loci]).drop_duplicates(subset=["Primary_SGDID"], keep="last")
-    
-    if (column != []):
+
+    if column != []:
         unfiltered_data = pd.DataFrame(data)
         filtered_data = unfiltered_data[str(column[0])]
         loci = loci.assign(FT_target=loci.Feature_name.isin(filtered_data))
-        
+
         loci.loc[loci.FT_target == True, "colors_parameters"]="Targets"
         loci.loc[(loci.GO_slim_term == str(GoTerm)) & (loci.FT_target == True), "colors_parameters"]=str(GoTerm)
-        
+
         loci = vis2D.format_coordinates(loci, 6)
         fig = vis2D.genome_drawing(loci, "colors_parameters", [str(GoTerm), "Targets"], [str(color), "Black"])
-       
+
     else :
         loci = vis2D.format_coordinates(loci, 6)
         fig = vis2D.genome_drawing(loci, "GO_slim_term", [str(GoTerm)], [str(color)])
-    
+
     return fig
 
 ############TAB1_CHROMOSOME_REPARTITION############
@@ -449,38 +450,38 @@ ORDER BY Start_coordinate
               State("datatable_tab1", "derived_virtual_data"),
               State("datatable_tab1", "selected_columns"))
 def update_chrom_repartition_tab1(n_clicks, data, column):
-    
+
     sql_query_2 = \
 """SELECT Primary_SGDID, Feature_name, Start_coordinate, Stop_coordinate, Chromosome, Strand
 FROM SGD_features
 ORDER BY Start_coordinate
 """
-    if (column != []):
+    if column != []:
         unfiltered_data = pd.DataFrame(data)
         filtered_data = unfiltered_data[str(column[0])]
-        
+
         loci = tools.get_locus_info("./static/SCERE.db", sql_query_2)
         loci = loci.assign(FT_target=loci.Feature_name.isin(filtered_data))
-        
+
         loci = loci[loci.FT_target == True].drop(["FT_target"], axis=1)
-        
+
         fig = px.histogram(loci, x="Chromosome", nbins=30, range_x=[1, 17], color_discrete_sequence=["#A0E8AF"])
-        fig.update_layout(plot_bgcolor="white", 
-                        xaxis_showgrid=False, 
-                        yaxis_showgrid=False, 
+        fig.update_layout(plot_bgcolor="white",
+                        xaxis_showgrid=False,
+                        yaxis_showgrid=False,
                         showlegend=True)
-       
+
         return fig
 
 ############TAB1_3D_GRAPH_FEATURE############
 @app.callback(Output("3D_representation", "figure"),
               Input("Submit_tab1", "n_clicks"),
               State("GoTerm-dropdown", "value"),
-              State("color-dropdown", "value"), 
+              State("color-dropdown", "value"),
               State("datatable_tab1", "derived_virtual_data"),
               State("datatable_tab1", "selected_columns"))
 def update_3D_graph_tab1(n_clicks, GoTerm, color, data, column):
-    
+
     sql_query_gobal = \
 """SELECT Primary_SGDID, count(SGDID), Feature_name, Start_coordinate, Stop_coordinate, Chromosome, Strand, GO_slim_term
 FROM SGD_features, go_slim_mapping
@@ -488,46 +489,46 @@ WHERE SGDID == Primary_SGDID
 GROUP BY SGDID
 ORDER BY Start_coordinate
 """
-    
+
     sql_query_3 = \
 """SELECT Primary_SGDID, Feature_name, Start_coordinate, Stop_coordinate, Chromosome, Strand, GO_slim_term
 FROM SGD_features, go_slim_mapping
-WHERE SGDID == Primary_SGDID 
-AND (GO_slim_term == """ + """ + str(GoTerm) + """ + """)
+WHERE SGDID == Primary_SGDID
+AND (GO_slim_term == """ + "'" + str(GoTerm) + "'" + """)
 GROUP BY SGDID
 ORDER BY Start_coordinate
 """
     all_loci = tools.get_locus_info("./static/SCERE.db", sql_query_gobal)
     selected_loci = tools.get_locus_info("./static/SCERE.db", sql_query_3)
 
-    if (column != []):
+    if column != []:
         unfiltered_data = pd.DataFrame(data)
         filtered_data = unfiltered_data[str(column[0])]
         loci = all_loci.assign(FT_target=all_loci.Feature_name.isin(filtered_data))
         loci = loci.assign(GoTerm=loci.Primary_SGDID.isin(selected_loci.Primary_SGDID))
-        
+
         loci.loc[loci.FT_target == True, "colors_parameters"]="Targets"
         loci.loc[(loci.GoTerm == True) & (loci.FT_target == True), "colors_parameters"]=str(GoTerm)
-        
+
         loci_segments = plotly_segments.merge(loci, on="Primary_SGDID", how="left", copy=False)
         loci_segments.index = range(1, len(loci_segments) + 1)
         loci_segments = vis3D.get_color_discreet_3D(loci_segments, "colors_parameters", [str(GoTerm), "Targets"], [str(color), "blue"])
         fig = vis3D.genome_drawing(loci_segments)
-       
+
     else :
         selected_loci_segments = plotly_segments.merge(selected_loci, on="Primary_SGDID", how="left", copy=False)
         selected_loci_segments.index = range(1, len(selected_loci_segments) + 1)
         selected_loci_segments = vis3D.get_color_discreet_3D(selected_loci_segments, "GO_slim_term", [str(GoTerm)], [str(color)])
-        
+
         fig = vis3D.genome_drawing(selected_loci_segments)
-    
-    return fig                   
+
+    return fig
 
 ############TAB1_3D_GRAPH_CHROMOSOMES############
 @app.callback(Output("3D_representation_chrom", "figure"),
               Input("Submit_tab1", "n_clicks"))
 def update_3D_graph_chrom_tab1(n_clicks):
-    
+
     sql_query_4 = \
 """SELECT Primary_SGDID, Start_coordinate, Stop_coordinate, Chromosome, Strand
 FROM SGD_features
@@ -539,8 +540,8 @@ ORDER BY Start_coordinate
     selected_loci_segments.index = range(1, len(selected_loci_segments) + 1)
 
     selected_loci_segments = vis3D.get_color_discreet_3D(selected_loci_segments, "Chromosome", list(range(1, 17)), colors)
-    
-    return vis3D.genome_drawing(selected_loci_segments)     
+
+    return vis3D.genome_drawing(selected_loci_segments)
 
 ############TAB2_UPLOAD############
 @app.callback(Output("output_data_upload_tab2", "children"),
@@ -573,7 +574,7 @@ def update_3D_graphs_tab2(n_clicks, input1, input2, input3):
 
     unfiltered_data = pd.DataFrame(input1)
     filtered_data = unfiltered_data[[str(input2[0]), str(input2[1])]]
-    
+
     sql_query_5 = \
 """SELECT Primary_SGDID, Start_coordinate, Stop_coordinate, Chromosome, Feature_name, Strand
 FROM gene_literature, SGD_features
@@ -586,30 +587,30 @@ ORDER BY Start_coordinate
 
     whole_genome_segments = plotly_segments.merge(whole_genome, on="Primary_SGDID", how="left", copy=False)
     whole_genome_segments.index = range(1, len(whole_genome_segments) + 1)
-    
+
     whole_genome_segments = whole_genome_segments.merge(filtered_data, left_on="Feature_name", right_on="YORF", how="left", copy=False)
     whole_genome_segments.iloc[: , -1].fillna("whitesmoke", inplace=True)
-    
+
     fig = go.Figure(data=[go.Scatter3d(x=whole_genome_segments.x,
                                    y=whole_genome_segments.y,
                                    z=whole_genome_segments.z,
                                    mode="lines",
                                    name="",
-                                   line={"color": whole_genome_segments.iloc[: , -1], 
-                                           "colorscale": input3, 
+                                   line={"color": whole_genome_segments.iloc[: , -1],
+                                           "colorscale": input3,
                                            "showscale": True,
                                            "width": 12},
-                                   customdata=whole_genome_segments.Primary_SGDID, 
+                                   customdata=whole_genome_segments.Primary_SGDID,
                                    hovertemplate=("<b>SGDID :</b> %{customdata} <br>"
                                                     "<b>x :</b> %{x} <br>"),
                                    hoverlabel=dict(bgcolor="white", font_size=16))])
-    
+
     fig.update_layout(scene=dict(xaxis=dict(showgrid=False, backgroundcolor="white"),
                              yaxis=dict(showgrid=False, backgroundcolor="white"),
                              zaxis=dict(showgrid=False, backgroundcolor="white")))
     fig.update_layout(height=800)
-    
-    return fig     
+
+    return fig
 
 ############TAB3_UPLOAD############
 @app.callback(Output("output_data_upload_tab3", "children"),
@@ -641,7 +642,7 @@ def update_styles_tab3(selected_columns):
 def update_network(n_clicks, input1):
 
     genes_list = pd.DataFrame(input1)
-    
+
     sql_query_6 = \
 """SELECT Primary_SGDID, Chromosome, Feature_name, Strand, Stop_coordinate, Start_coordinate
 FROM SGD_features
@@ -649,21 +650,21 @@ FROM SGD_features
 
     Feature_name = tools.get_locus_info("./static/SCERE.db", sql_query_6)
     Feature_name = Feature_name.merge(genes_list, left_on="Feature_name", right_on=genes_list.columns[0])
-    
+
     nodes = [{"data": {"id": Primary_SGDID, "label": Feature_name}}
          for Primary_SGDID, Feature_name in zip(Feature_name["Primary_SGDID"], Feature_name["Feature_name"])
         ]
-    
+
     edges_list_select = tools.get_edges_list(genes_list, edges_list, all_feature_name)
 
     edges = [{"data": {"source": source, "target": target, "weight": float(weight)}}
              for source, target, weight in zip(edges_list_select["Primary_SGDID_bis"], edges_list_select["Primary_SGDID"], edges_list_select["3D_distances"])
             ]
-    
+
     elements = nodes + edges
     slider_max = max(edges_list_select["3D_distances"])
     slider_min = min(edges_list_select["3D_distances"])
-    
+
     return elements, slider_max, slider_min
 
 ############TAB3_HIST############
@@ -687,7 +688,7 @@ def update_hist(n_clicks, input1, input2):
 def update_stylesheet_(treshold):
     new_styles = [{"selector": "[weight >" + str(treshold) + "]", "style": {"opacity": 0}}]
     stylesheet = basic_stylesheet + new_styles
-    
+
     return stylesheet
 
 ############TAB3_NETWORK_METRICS############
@@ -695,46 +696,46 @@ def update_stylesheet_(treshold):
               Input("treshold_slider", "value"),
               Input("network", "elements"))
 def update_metrics_1(treshold, elements):
-    
+
     subgraph_edges = pd.DataFrame(elements)
     subgraph_edges = pd.json_normalize(subgraph_edges["data"])
     subgraph_edges = subgraph_edges[subgraph_edges["weight"] < treshold]
-    
+
     G = nx.from_pandas_edgelist(subgraph_edges, source="source", target="target")
-    
+
     return "number of nodes : " + str(G.number_of_nodes())
 
 @app.callback(Output("output_edges_number_tab3", "children"),
               Input("treshold_slider", "value"),
               Input("network", "elements"))
 def update_metrics_2(treshold, elements):
-    
+
     subgraph_edges = pd.DataFrame(elements)
     subgraph_edges = pd.json_normalize(subgraph_edges["data"])
     subgraph_edges = subgraph_edges[subgraph_edges["weight"] < treshold]
-    
+
     G = nx.from_pandas_edgelist(subgraph_edges, source="source", target="target")
-    
+
     return "number of edges : " + str(G.number_of_edges())
 
 @app.callback(Output("Degrees_hist", "figure"),
               Input("treshold_slider", "value"),
               Input("network", "elements"))
 def update_metrics_3(treshold, elements):
-    
+
     subgraph_edges = pd.DataFrame(elements)
     subgraph_edges = pd.json_normalize(subgraph_edges["data"])
     subgraph_edges = subgraph_edges[subgraph_edges["weight"] < treshold]
-    
+
     G = nx.from_pandas_edgelist(subgraph_edges, source="source", target="target")
-    
+
     degrees = [val for (node, val) in G.degree()]
     fig = px.histogram(degrees, nbins= 70, color_discrete_sequence=["#A0E8AF"])
-    fig.update_layout(plot_bgcolor="white", 
-                      xaxis_showgrid=False, 
-                      yaxis_showgrid=False, 
+    fig.update_layout(plot_bgcolor="white",
+                      xaxis_showgrid=False,
+                      yaxis_showgrid=False,
                       showlegend=True)
-    
+
     return fig
 
 
