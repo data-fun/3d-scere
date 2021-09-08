@@ -1,15 +1,6 @@
-import sys
-
-sys.path.insert(0, "./lib/")
-
-import tools
-import visualization_2D as vis2D
-import visualization_3D as vis3D
-import pandas as pd
-import numpy as np
-import plotly.express as px
-import plotly.graph_objects as go
-import networkx as nx
+"""
+3D-Scere app.
+"""
 
 import dash
 import dash_core_components as dcc
@@ -17,6 +8,16 @@ import dash_html_components as html
 import dash_bootstrap_components as dbc
 import dash_cytoscape as cyto
 from dash.dependencies import Input, Output, State
+
+import networkx as nx
+import numpy as np
+import pandas as pd
+import plotly.express as px
+import plotly.graph_objects as go
+
+import lib.tools as tools
+import lib.visualization_2D as vis2D
+import lib.visualization_3D as vis3D
 
 ########################
 ############APP_INITIALIZATION############
@@ -33,16 +34,16 @@ plotly_segments = pd.read_csv("./static/plotly_segments.csv")
 edges_list = pd.read_parquet("./static/3D_distances.parquet.gzip", engine="pyarrow")
 
 # Get all features for all gene
-sql_query = \
+SQL_QUERY = \
 """SELECT Primary_SGDID, Standard_gene_name, Chromosome, Feature_name, Strand, Stop_coordinate, Start_coordinate, Description
 FROM SGD_features
 """
-all_feature_name = tools.get_locus_info("./static/SCERE.db", sql_query)
+all_feature_name = tools.get_locus_info("./static/SCERE.db", SQL_QUERY)
 
 #3D distance histogram constants
-bin_number = 50
+BIN_NUMBER = 50
 all_x = list(edges_list["3D_distances"])
-H2, X = np.histogram(all_x, bins=bin_number, range=(0, 200))
+H2, X = np.histogram(all_x, bins=BIN_NUMBER, range=(0, 200))
 H2 = H2/len(all_x)
 F2 = np.cumsum(H2)/sum(H2)
 
@@ -87,7 +88,8 @@ input_tab1 = html.Div(
             [
                 dbc.Col(
                 [
-                    dbc.Row([html.H4("csv file upload", style={"padding-right" : "2%", "padding-left" : "2%"}), html.Abbr("\u003f\u20dd", title="Upload a one column .csv file with YORF")]),
+                    dbc.Row([html.H4("csv file upload", style={"padding-right" : "2%", "padding-left" : "2%"}),
+                    html.Abbr("\u003f\u20dd", title="Upload a one column .csv file with YORF")]),
                     dcc.Upload(id="upload_data_tab1", children=html.Div(
                     ["Drag and Drop or ",
                      html.A("Select Files")
@@ -111,7 +113,8 @@ input_tab1 = html.Div(
             [
                 dbc.Col(
                 [
-                    dbc.Row([html.H4("GO terms", style={"padding-right" : "2%", "padding-left" : "2%"}), html.Abbr("\u003f\u20dd", title="Choose a GO term to tag")]),
+                    dbc.Row([html.H4("GO terms", style={"padding-right" : "2%", "padding-left" : "2%"}),
+                    html.Abbr("\u003f\u20dd", title="Choose a GO term to tag")]),
                     dcc.Dropdown(
                         id="GoTerm-dropdown",
                         options=GO_terms_options,
@@ -119,7 +122,8 @@ input_tab1 = html.Div(
                 ]),
                 dbc.Col(
                 [
-                    dbc.Row([html.H4("Color", style={"padding-right" : "2%", "padding-left" : "2%"}), html.Abbr("\u003f\u20dd", title="Choose the tagging color of the GO term")]),
+                    dbc.Row([html.H4("Color", style={"padding-right" : "2%", "padding-left" : "2%"}),
+                    html.Abbr("\u003f\u20dd", title="Choose the tagging color of the GO term")]),
                     dcc.Dropdown(
                         id="color-dropdown",
                         options=[
@@ -163,7 +167,8 @@ input_tab2 = html.Div(
                 ]),
                 dbc.Col(
                 [
-                    dbc.Row([html.H4("Color scale", style={"padding-right" : "2%", "padding-left" : "2%"}), html.Abbr("\u003f\u20dd", title="Choose a colorscale")]),
+                    dbc.Row([html.H4("Color scale", style={"padding-right" : "2%", "padding-left" : "2%"}),
+                    html.Abbr("\u003f\u20dd", title="Choose a colorscale")]),
                     dcc.Dropdown(
                         id="color_scale_dropdown",
                         options=[
@@ -190,7 +195,8 @@ input_tab3 = html.Div(
             [
                 dbc.Col(
                 [
-                    dbc.Row([html.H4("csv file upload", style={"padding-right" : "2%", "padding-left" : "2%"}), html.Abbr("\u003f\u20dd", title="Upload a one column .csv file with YORF")]),
+                    dbc.Row([html.H4("csv file upload", style={"padding-right" : "2%", "padding-left" : "2%"}),
+                    html.Abbr("\u003f\u20dd", title="Upload a one column .csv file with YORF")]),
                     dcc.Upload(id="upload_data_tab3", children=html.Div(
                     ["Drag and Drop or ",
                      html.A("Select Files")
@@ -676,7 +682,7 @@ def update_hist(n_clicks, input1, input2):
 
     genes_list = pd.DataFrame(input2)
 
-    fig = tools.distri(genes_list, edges_list, all_feature_name, H2, F2, bin_number, input1)
+    fig = tools.distri(genes_list, edges_list, all_feature_name, H2, F2, BIN_NUMBER, input1)
 
     out_url = tools.fig_to_uri(fig)
 
