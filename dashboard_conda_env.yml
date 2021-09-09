@@ -14,3 +14,5 @@ dependencies:
   - dash-bootstrap-components
   - dash_cytoscape
   - pyarrow
+  # Deployment
+  - gunicorn
