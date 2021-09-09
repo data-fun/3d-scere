@@ -7,7 +7,7 @@ run: ## Run app on port 8050
 .PHONY: run
 
 
-run-gunicorn:  ## Run app with gunicorn on port 5000
+run-gunicorn:  ## Run app with gunicorn on port 8000
 	@test "${CONDA_DEFAULT_ENV}" = "dashboard" && echo "Conda env ${CONDA_DEFAULT_ENV} found" || { echo "Conda env not activated"; exit 1; }
 	gunicorn --config gunicorn.py app:server
 .PHONY: run-gunicorn
