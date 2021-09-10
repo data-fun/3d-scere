@@ -379,8 +379,8 @@ app.layout = dbc.Container(
                         The slider determines the threshold under witch 3D distances are used to construct the network."""),
             dbc.Row(style={"height" : 45}),
             input_tab3,
-            slider_tab3,
             visualization_tab3_hist,
+            slider_tab3,
             visualization_tab3_network,
             visualization_tab3_metrics
         ]),
