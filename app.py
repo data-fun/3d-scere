@@ -236,8 +236,10 @@ slider_tab3 = html.Div(
                                min=0,
                                max=10,
                                step=1,
-                               value=5
-                              )
+                               value=5),
+                    html.Div(id='output_min_slider'),
+                    html.Div(id='output_max_slider'),
+                    html.Div(id='output_value_slider')
                 ]),
                 dbc.Col(
                 [
@@ -642,8 +644,10 @@ def update_styles_tab3(selected_columns):
 
 ############TAB3_SLIDER_AND_NETWORK############
 @app.callback(Output("network", "elements"),
-              Output("treshold_slider", "max"),
               Output("treshold_slider", "min"),
+              Output("treshold_slider", "max"),
+              Output("output_min_slider", "children"),
+              Output("output_max_slider", "children"),
               Input("Submit_tab3", "n_clicks"),
               State("datatable_tab3", "derived_virtual_data"))
 def update_network(n_clicks, input1):
@@ -672,7 +676,13 @@ FROM SGD_features
     slider_max = max(edges_list_select["3D_distances"])
     slider_min = min(edges_list_select["3D_distances"])
 
-    return elements, slider_max, slider_min
+    return elements, slider_min, slider_max, "min {}".format(round(slider_min)), "max {}".format(round(slider_max))
+
+############TAB3_SLIDER_OUTPUT############
+@app.callback(Output("output_value_slider", "children"),
+              Input("treshold_slider", "value"))
+def update_slider_output(value):
+    return "3D distances in network are inferior to {}".format(value)
 
 ############TAB3_HIST############
 @app.callback(Output("hist", component_property="src"),
