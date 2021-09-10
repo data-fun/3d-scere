@@ -20,7 +20,7 @@ def genome_drawing(whole_genome_segments):
                                        z = whole_genome_segments.z,
                                        mode = "lines",
                                        name = "",
-                                       line = {"color": whole_genome_segments["colors"],
+                                       line = {"color": whole_genome_segments["legend"],
                                                "width": 12},
                                        customdata = whole_genome_segments["Feature_name"],
                                        hovertemplate = ("<b>YORF :</b> %{customdata} <br>"),
@@ -54,11 +54,11 @@ def get_color_discreet_3D(genome_data, parameter, values, values_colors):
     Pandas dataframe
     """
 
-    genome_data.loc[genome_data[parameter] != values[0], "colors"] = "darkgrey"
+    genome_data.loc[genome_data[parameter] != values[0], "legend"] = "darkgrey"
 
     for v, c in zip(values, values_colors):
-        genome_data.loc[genome_data[parameter] == v, "colors"] = c
+        genome_data.loc[genome_data[parameter] == v, "legend"] = c
 
-    genome_data.loc[genome_data["Primary_SGDID"].isna() == True, "colors"] = "whitesmoke"
+    genome_data.loc[genome_data["Primary_SGDID"].isna() == True, "legend"] = "whitesmoke"
 
     return genome_data

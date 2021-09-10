@@ -279,7 +279,7 @@ visualization_tab1 = html.Div(
             [
                 dbc.Col(
                 [
-                    dcc.Graph(id="3D_representation_chrom"),
+                    dcc.Loading(children=[dcc.Graph(id="3D_representation_chrom")]),
                 ])
             ])
         ],
@@ -550,8 +550,23 @@ ORDER BY Start_coordinate
 
     selected_loci_segments = vis3D.get_color_discreet_3D(selected_loci_segments, "Chromosome", list(range(1, 17)), colors)
 
-    return vis3D.genome_drawing(selected_loci_segments)
+    fig = go.Figure(data=[go.Scatter3d(x = selected_loci_segments.x,
+                                       y = selected_loci_segments.y,
+                                       z = selected_loci_segments.z,
+                                       mode = "lines",
+                                       name = "",
+                                       line = {"color": selected_loci_segments["legend"],
+                                               "width": 12},
+                                       customdata = selected_loci_segments["Chromosome"],
+                                       hovertemplate = ("<b>Chromosome :</b> %{customdata} <br>"),
+                                       hoverlabel = dict(bgcolor = "white", font_size = 16))])
 
+    fig.update_layout(scene=dict(xaxis = dict(showgrid = False, backgroundcolor = "white"),
+                                 yaxis = dict(showgrid = False, backgroundcolor = "white"),
+                                 zaxis = dict(showgrid = False, backgroundcolor = "white")))
+    fig.update_layout(height=800)
+
+    return fig
 ############TAB2_UPLOAD############
 @app.callback(Output("output_data_upload_tab2", "children"),
               Input("upload_data_tab2", "contents"),
@@ -609,9 +624,8 @@ ORDER BY Start_coordinate
                                            "colorscale": input3,
                                            "showscale": True,
                                            "width": 12},
-                                   customdata=whole_genome_segments.Primary_SGDID,
-                                   hovertemplate=("<b>SGDID :</b> %{customdata} <br>"
-                                                    "<b>x :</b> %{x} <br>"),
+                                   customdata=whole_genome_segments.Feature_name,
+                                   hovertemplate=("<b>YORF :</b> %{customdata} <br>"),
                                    hoverlabel=dict(bgcolor="white", font_size=16))])
 
     fig.update_layout(scene=dict(xaxis=dict(showgrid=False, backgroundcolor="white"),

@@ -186,7 +186,7 @@ def genome_drawing(genome_data, parameter, values = "null", values_colors = "nul
     fig = px.line(genome_data,
                     x = "x",
                     y = "y",
-                    color = "colors",
+                    color = "legend",
                     color_discrete_map = {"Other": "darkgrey", "Background": "lightgrey", **color_discrete_map},
                     hover_name = "Feature_name")
 
@@ -227,11 +227,11 @@ def get_color_discreet(genome_data, parameter, values):
     -------
     Pandas dataframe
     """
-    genome_data.loc[genome_data[parameter] != values[0], "colors"] = "Other"
+    genome_data.loc[genome_data[parameter] != values[0], "legend"] = "Other"
 
     for v in values :
-        genome_data.loc[genome_data[parameter] == v, "colors"] = v
+        genome_data.loc[genome_data[parameter] == v, "legend"] = v
 
-    genome_data.loc[genome_data["Chromosome"] == 0, "colors"] = "Background"
+    genome_data.loc[genome_data["Chromosome"] == 0, "legend"] = "Background"
 
     return genome_data
