@@ -80,7 +80,7 @@ summary = html.Details([html.Summary([html.H4("Introduction")]),
                                     Further information can easily be added like functional annotations (GO terms) or gene expression measurements.
                                     Qualitative or quantitative functional properties are thus highlighted in the large-scale 3D context of the genome
                                     with only a few mouse clicks.""")
-                        ], open = True)
+                        ], open = False)
 
 ############APP_INPUTS_COMPONENTS############
 
@@ -231,7 +231,8 @@ slider_tab3 = html.Div(
             [
                 dbc.Col(
                 [
-                    html.H4("3D distance treshold"),
+                    dbc.Row([html.H4("3D distances treshold", style={"padding-right" : "2%", "padding-left" : "2%"}),
+                    html.Abbr("\u003f\u20dd", title="Select a threshold under witch 3D distances are used to construct the network")]),
                     dcc.Slider(id="treshold_slider",
                                min=0,
                                max=10,
@@ -255,7 +256,8 @@ visualization_tab1 = html.Div(
             [
                 dbc.Col(
                 [
-                    html.H3("2D Visualization"),
+                    dbc.Row([html.H3("2D visualization", style={"padding-right" : "2%", "padding-left" : "2%"}),
+                    html.Abbr("\u003f\u20dd", title="Scaled linear representation of the S. cerevisiae genome, each chromosome is represented as two stands : - above +")]),
                     dcc.Loading(children=[dcc.Graph(id="2D_representation")]),
                 ])
             ]),
@@ -263,7 +265,7 @@ visualization_tab1 = html.Div(
             [
                 dbc.Col(
                 [
-                    html.H3("Chromosomes repartition"),
+                    html.H3("Target's repartition on chromosomes"),
                     dcc.Loading(children=[dcc.Graph(id="Chromosomes_repartition")]),
                 ])
             ]),
@@ -271,7 +273,8 @@ visualization_tab1 = html.Div(
             [
                 dbc.Col(
                 [
-                    html.H3("3D Visualization"),
+                    dbc.Row([html.H3("3D visualizations", style={"padding-right" : "2%", "padding-left" : "2%"}),
+                    html.Abbr("\u003f\u20dd", title="3D representations of the S cerevisiae genome, the loci are not to scale")]),
                     dcc.Loading(children=[dcc.Graph(id="3D_representation")]),
                 ])
             ]),
@@ -290,7 +293,8 @@ visualization_tab2 = html.Div(
             [
                 dbc.Col(
                 [
-                    html.H3("3D Visualization"),
+                    dbc.Row([html.H3("3D visualization", style={"padding-right" : "2%", "padding-left" : "2%"}),
+                    html.Abbr("\u003f\u20dd", title="3D representation of the S cerevisiae genome, the loci are not to scale")]),
                     dcc.Loading(children=[dcc.Graph(id="3D_representation_tab2")]),
                 ])
             ])
@@ -302,7 +306,8 @@ visualization_tab3_hist = html.Div(
             [
                 dbc.Col(
                 [
-                html.H3("3D distances histogram"),
+                dbc.Row([html.H3("3D distances histogram", style={"padding-right" : "2%", "padding-left" : "2%"}),
+                    html.Abbr("\u003f\u20dd", title="The treshold is dynamically represented by the dashed black line")]),
                 dbc.Row(style={"height" : 10}),
                 dcc.Loading(children=[html.Img(id="hist", src="")])
                 ]),
@@ -331,7 +336,7 @@ visualization_tab3_metrics = html.Div(
             [
                 dbc.Col(
                 [
-                    html.H3("Network metrics"),
+                    html.H3("Degrees distribution"),
                     html.Div(id="output_edges_number_tab3"),
                     html.Div(id="output_nodes_number_tab3"),
                     dcc.Loading(children=[dcc.Graph(id="Degrees_hist")])
@@ -734,7 +739,7 @@ def update_metrics_1(treshold, elements):
 
     G = nx.from_pandas_edgelist(subgraph_edges, source="source", target="target")
 
-    return "number of nodes : " + str(G.number_of_nodes())
+    return "number of connected nodes : " + str(G.number_of_nodes())
 
 @app.callback(Output("output_edges_number_tab3", "children"),
               Input("treshold_slider", "value"),
@@ -765,7 +770,7 @@ def update_metrics_3(treshold, elements):
     fig.update_layout(plot_bgcolor="white",
                       xaxis_showgrid=False,
                       yaxis_showgrid=False,
-                      showlegend=True)
+                      showlegend=False)
 
     return fig
 
