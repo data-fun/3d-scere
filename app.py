@@ -57,6 +57,7 @@ colors = ["darkred", "red", "darkorange", "orange", "gold", "green",
 app = dash.Dash(name=NAME, assets_folder="./assets", external_stylesheets=[dbc.themes.LUX, LITERA])
 app.title = NAME
 app.config.suppress_callback_exceptions = True
+server = app.server
 
 ########################
 ############DASHBOARD_LAYOUT############

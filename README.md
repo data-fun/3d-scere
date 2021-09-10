@@ -37,7 +37,16 @@ wget -P ./static https://zenodo.org/blablablab/adjacency_matrix_V4.parquet.gzip
 ## Run the dashboard
 
 ```
-python app.py
+make run
 ```
 
 then open your web browser on <http://127.0.0.1:8050/>
+
+
+## Run the dashboard on a server
+
+```
+make run-gunicorn
+```
+
+then open your web browser on <http://127.0.0.1:8000/>
