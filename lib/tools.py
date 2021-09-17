@@ -17,7 +17,7 @@ def display_module_version():
 
 def get_locus_info(database, query):
     """Query the SQLite database.
-    
+
     Parameters
     ----------
     database : str
@@ -28,18 +28,18 @@ def get_locus_info(database, query):
     Returns
     -------
     Pandas Dataframe
-    """  
+    """
     # Connect to database.
     db_connexion = sqlite3.connect(database)
     cursor = db_connexion.cursor()
-    
+
     # Query database.
     chrom_info = cursor.execute(query)
-    
+
     # Convert to Pandas dataframe
     column_names = [column[0] for column in chrom_info.description]
     chrom_info_df = pd.DataFrame(chrom_info.fetchall(), columns=column_names)
-    
+
     # Select only strands + and -
     chrom_info_df = chrom_info_df[ (chrom_info_df["Strand"] == "C") | (chrom_info_df["Strand"] == "W") ]
     # Remove "2-micron" plasmid
@@ -68,7 +68,7 @@ def parse_contents(contents, filename, datatable_id):
         return html.Div([
             'There was an error processing this file.'
         ])
-    
+
     return html.Div([
         html.H5(filename),
         dash_table.DataTable(
@@ -92,19 +92,19 @@ def parse_contents(contents, filename, datatable_id):
     ])
 
 def get_edges_list(gene_list, edges_list, feature_name):
-    
+
     # Add SGDID
     feature_name = feature_name.merge(gene_list, left_on = "Feature_name", right_on = gene_list.columns[0])
-    
+
     # Extract distances for selected genes list
     edges_list_select = edges_list[edges_list["Primary_SGDID"].isin(feature_name["Primary_SGDID"])]
     edges_list_select = edges_list_select[edges_list_select["Primary_SGDID_bis"].isin(feature_name["Primary_SGDID"])]
     edges_list_select.index = range(1, len(edges_list_select) + 1)
-    
+
     return edges_list_select
 
 def distri(genes_list, edges_list, feature_name, H2, F2, bin_number, input1):
-    
+
     edges_list_select = get_edges_list(genes_list, edges_list, feature_name)
     x = list(edges_list_select["3D_distances"])
     H, X1 = np.histogram(x, bins = bin_number, range = (0, 200))
@@ -116,17 +116,17 @@ def distri(genes_list, edges_list, feature_name, H2, F2, bin_number, input1):
     ax.hist(X1[:-1], X1, weights=H2, color="#5767FF", alpha=0.3, label="All distances")
     ax.set_xlim(0, 200)
     plt.xlabel("3D distances", size = 16)
-    ax.hist(X1[:-1], X1, weights=H, color="#FA3824", alpha=0.3, label="TF's targets")
+    ax.hist(X1[:-1], X1, weights=H, color="#FA3824", alpha=0.3, label="Targets")
     plt.ylabel("Density", size = 16)
     ax2=ax.twinx()
     plt.ylabel("CDF", size = 16)
-    ax2.plot(X1[:-1], F1, label="CDF (TF's targets)", color = "#FA3824")
+    ax2.plot(X1[:-1], F1, label="CDF (Targets)", color = "#FA3824")
     ax2.plot(X1[:-1], F2, label="CDF (all)", color = "#5767FF")
     ax.legend(bbox_to_anchor = (0.6, 0.9), loc="upper left")
     ax2.legend(bbox_to_anchor = (0.6, 0.7), loc="upper left")
 
     plt.axvline(x=input1, color='black', linestyle='--')
-    
+
     return fig
 
 #From https://github.com/4QuantOSS/DashIntro/blob/master/notebooks/Tutorial.ipynb

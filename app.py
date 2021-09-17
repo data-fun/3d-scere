@@ -74,13 +74,13 @@ header = html.Div(
         ],
         style = {"padding-down": "4%", "padding-top": "2%"})
 
-summary = html.Details([html.Summary([html.H4("Introduction")]),
+summary = html.Details([html.Summary([html.H3("Introduction")]),
                         html.Div("""3D-Scere is an open-source online tool for interactive visualization and exploration.
                                     This tool allows the visualization of any list of genes in the context of the 3D model of S. cerevisiae genome.
                                     Further information can easily be added like functional annotations (GO terms) or gene expression measurements.
                                     Qualitative or quantitative functional properties are thus highlighted in the large-scale 3D context of the genome
                                     with only a few mouse clicks.""")
-                        ], open = False)
+                        ], open = True)
 
 ############APP_INPUTS_COMPONENTS############
 
@@ -89,7 +89,7 @@ input_tab1 = html.Div(
             [
                 dbc.Col(
                 [
-                    dbc.Row([html.H4("csv file upload", style={"padding-right" : "2%", "padding-left" : "2%"}),
+                    dbc.Row([html.H3("csv file upload", style={"padding-right" : "2%", "padding-left" : "2%"}),
                     html.Abbr("\u003f\u20dd", title="Upload a one column .csv file with YORF")]),
                     dcc.Upload(id="upload_data_tab1", children=html.Div(
                     ["Drag and Drop or ",
@@ -114,7 +114,7 @@ input_tab1 = html.Div(
             [
                 dbc.Col(
                 [
-                    dbc.Row([html.H4("GO terms", style={"padding-right" : "2%", "padding-left" : "2%"}),
+                    dbc.Row([html.H3("GO terms", style={"padding-right" : "2%", "padding-left" : "2%"}),
                     html.Abbr("\u003f\u20dd", title="Choose a GO term to tag")]),
                     dcc.Dropdown(
                         id="GoTerm-dropdown",
@@ -123,12 +123,11 @@ input_tab1 = html.Div(
                 ]),
                 dbc.Col(
                 [
-                    dbc.Row([html.H4("Color", style={"padding-right" : "2%", "padding-left" : "2%"}),
+                    dbc.Row([html.H3("Color", style={"padding-right" : "2%", "padding-left" : "2%"}),
                     html.Abbr("\u003f\u20dd", title="Choose the tagging color of the GO term")]),
                     dcc.Dropdown(
                         id="color-dropdown",
                         options=[
-                            {"label": "Blue", "value": "blue"},
                             {"label": "Red", "value": "red"},
                             {"label": "Green", "value": "green"},
                             {"label": "Yellow", "value": "yellow"}],
@@ -150,7 +149,7 @@ input_tab2 = html.Div(
             [
                 dbc.Col(
                 [
-                    dbc.Row([html.H4("csv file upload", style={"padding-right" : "2%", "padding-left" : "2%"}),
+                    dbc.Row([html.H3("csv file upload", style={"padding-right" : "2%", "padding-left" : "2%"}),
                     html.Abbr("\u003f\u20dd", title="Upload a .csv file with YORF in the first column")]),
                     dcc.Upload(id="upload_data_tab2", children=html.Div(
                     ["Drag and Drop or ",
@@ -168,8 +167,8 @@ input_tab2 = html.Div(
                 ]),
                 dbc.Col(
                 [
-                    dbc.Row([html.H4("Color scale", style={"padding-right" : "2%", "padding-left" : "2%"}),
-                    html.Abbr("\u003f\u20dd", title="Choose a colorscale")]),
+                    dbc.Row([html.H3("Color scale", style={"padding-right" : "2%", "padding-left" : "2%"}),
+                    html.Abbr("\u003f\u20dd", title="Color scales can be diverging or linear")]),
                     dcc.Dropdown(
                         id="color_scale_dropdown",
                         options=[
@@ -196,7 +195,7 @@ input_tab3 = html.Div(
             [
                 dbc.Col(
                 [
-                    dbc.Row([html.H4("csv file upload", style={"padding-right" : "2%", "padding-left" : "2%"}),
+                    dbc.Row([html.H3("csv file upload", style={"padding-right" : "2%", "padding-left" : "2%"}),
                     html.Abbr("\u003f\u20dd", title="Upload a one column .csv file with YORF")]),
                     dcc.Upload(id="upload_data_tab3", children=html.Div(
                     ["Drag and Drop or ",
@@ -231,8 +230,8 @@ slider_tab3 = html.Div(
             [
                 dbc.Col(
                 [
-                    dbc.Row([html.H4("3D distances treshold", style={"padding-right" : "2%", "padding-left" : "2%"}),
-                    html.Abbr("\u003f\u20dd", title="Select a threshold under witch 3D distances are used to construct the network")]),
+                    dbc.Row([html.H3("3D distances treshold", style={"padding-right" : "2%", "padding-left" : "2%"}),
+                    html.Abbr("\u003f\u20dd", title="Select a threshold under which 3D distances are used to construct the network")]),
                     dcc.Slider(id="treshold_slider",
                                min=0,
                                max=10,
@@ -274,7 +273,7 @@ visualization_tab1 = html.Div(
                 dbc.Col(
                 [
                     dbc.Row([html.H3("3D visualizations", style={"padding-right" : "2%", "padding-left" : "2%"}),
-                    html.Abbr("\u003f\u20dd", title="3D representations of the S cerevisiae genome, the loci are not to scale")]),
+                    html.Abbr("\u003f\u20dd", title="3D representations of the S cerevisiae genome, the size of loci on chromosomes are not to scale")]),
                     dcc.Loading(children=[dcc.Graph(id="3D_representation")]),
                 ])
             ]),
@@ -294,7 +293,7 @@ visualization_tab2 = html.Div(
                 dbc.Col(
                 [
                     dbc.Row([html.H3("3D visualization", style={"padding-right" : "2%", "padding-left" : "2%"}),
-                    html.Abbr("\u003f\u20dd", title="3D representation of the S cerevisiae genome, the loci are not to scale")]),
+                    html.Abbr("\u003f\u20dd", title="3D representation of the S cerevisiae genome, the size of loci on chromosomes are not to scale")]),
                     dcc.Loading(children=[dcc.Graph(id="3D_representation_tab2")]),
                 ])
             ])
@@ -307,7 +306,7 @@ visualization_tab3_hist = html.Div(
                 dbc.Col(
                 [
                 dbc.Row([html.H3("3D distances histogram", style={"padding-right" : "2%", "padding-left" : "2%"}),
-                    html.Abbr("\u003f\u20dd", title="The treshold is dynamically represented by the dashed black line")]),
+                    html.Abbr("\u003f\u20dd", title="The treshold is dynamically represented by the dashed black line. CDF = cumulative distribution function")]),
                 dbc.Row(style={"height" : 10}),
                 dcc.Loading(children=[html.Img(id="hist", src="")])
                 ]),
@@ -356,9 +355,9 @@ app.layout = dbc.Container(
         dcc.Tabs([
         dcc.Tab(label="GO term projection", children=[
             dbc.Row(style={"height" : 45}),
-            html.Div("""The projected list of genes can be colored uniformly or according to a selected GO term.
+            html.Div("""The projected list of genes can be colored uniformly or according to a selected Gene Ontology (GO) term.
                         Upload the genes list as a one column .csv file containing YORF, then click the submit button.
-                        To simultaneously color genes in the list that are associated to a given GO term, select it with an associated color before clicking on submit."""),
+                        Optionally, select a GO term and a color before submitting to color associated genes in the list."""),
             dbc.Row(style={"height" : 45}),
             input_tab1,
             visualization_tab1
@@ -366,7 +365,7 @@ app.layout = dbc.Container(
         dcc.Tab(label="Quantitative variable projection", children=[
             dbc.Row(style={"height" : 45}),
             html.Div("""The projected list of genes can be colored according to a given quantitative variable.
-                        Upload the genes list as a .csv file, with YORF in the first column. Then select the column corresponding the quantitative variable and a color scale before
+                        Upload the genes list as a .csv file, with YORF in the first column. Then select the column corresponding to the quantitative variable and a color scale before
                         clicking on submit."""),
             dbc.Row(style={"height" : 45}),
             input_tab2,
@@ -376,7 +375,7 @@ app.layout = dbc.Container(
             dbc.Row(style={"height" : 45}),
             html.Div("""All the 3D distances between genes in the list are summarized into a histogram and a network.
                         Upload the genes list as a one column .csv file containing YORF, then click the submit button.
-                        The slider determines the threshold under witch 3D distances are used to construct the network."""),
+                        The slider determines the threshold under which 3D distances are used to construct the network."""),
             dbc.Row(style={"height" : 45}),
             input_tab3,
             visualization_tab3_hist,
@@ -478,12 +477,16 @@ ORDER BY Start_coordinate
         loci = loci.assign(FT_target=loci.Feature_name.isin(filtered_data))
 
         loci = loci[loci.FT_target == True].drop(["FT_target"], axis=1)
+        loci.rename(columns = {'Chromosome':'chromosomes'}, inplace = True)
 
-        fig = px.histogram(loci, x="Chromosome", nbins=30, range_x=[1, 17], color_discrete_sequence=["#A0E8AF"])
+        fig = px.histogram(loci, x="chromosomes", nbins=30, range_x=[0, 17], color_discrete_sequence=["#5767FF"])
         fig.update_layout(plot_bgcolor="white",
-                        xaxis_showgrid=False,
-                        yaxis_showgrid=False,
-                        showlegend=True)
+                          bargap = 0.01,
+                          xaxis_showgrid=False,
+                          yaxis_showgrid=False,
+                          showlegend=True)
+        fig.update_xaxes(dtick = 1)
+        fig.update_traces(marker={"opacity": 0.7})
 
         return fig
 
@@ -766,7 +769,7 @@ def update_metrics_3(treshold, elements):
     G = nx.from_pandas_edgelist(subgraph_edges, source="source", target="target")
 
     degrees = [val for (node, val) in G.degree()]
-    fig = px.histogram(degrees, nbins= 70, color_discrete_sequence=["#A0E8AF"])
+    fig = px.histogram(degrees, nbins=70, color_discrete_sequence=["#A0E8AF"], labels={"value": "degrees"})
     fig.update_layout(plot_bgcolor="white",
                       xaxis_showgrid=False,
                       yaxis_showgrid=False,
