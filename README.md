@@ -27,6 +27,7 @@ conda activate dashboard
 Download the SQL database (~340 Mb):
 ```
 wget -O static/SCERE.db https://zenodo.org/record/5526011/files/SCERE.db
+```
 
 Download the distance matrix (~550 Mb):
 ```
