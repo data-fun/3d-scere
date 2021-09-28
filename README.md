@@ -24,14 +24,13 @@ conda activate dashboard
 
 ## Required static data
 
-Download the SQL database:
+Download the SQL database (~340 Mb):
 ```
-wget -P ./static https://zenodo.org/blablablab/SCERE.db
-```
+wget -O static/SCERE.db https://zenodo.org/record/5526011/files/SCERE.db
 
-Download the distances matrix:
+Download the distance matrix (~550 Mb):
 ```
-wget -P ./static https://zenodo.org/blablablab/adjacency_matrix_V4.parquet.gzip
+wget -O static/3D_distances.parquet.gzip https://zenodo.org/record/5526011/files/3D_distances.parquet.gzip
 ```
 
 ## Run the dashboard
