@@ -50,3 +50,15 @@ make run-gunicorn
 ```
 
 then open your web browser on <http://127.0.0.1:8000/>
+
+## Test the dashboard with example data
+
+Use the files in example data folder.
+
+Example file for the "GO term projection" and "3D distances histogram and network" tabs:
+gene_list_example_UPC2_38_targets.csv : Targets list of the UPC2 trancription factor, extracted from the [supplementary data](https://static-content.springer.com/esm/art%3A10.1038%2Fs41598-020-74043-7/MediaObjects/41598_2020_74043_MOESM1_ESM.zip) of Monteiro et al., Assessing regulatory features of the current transcriptional network of Saccharomyces cerevisiae. Sci Rep. 2020 Dec;10(1):17744.
+
+
+Example file for the "Quantitative variable projection" tab:
+quantitative_variables_example.csv: microarray data (heatshock 25°C to 37°C) from 2010.Gasch00_HS25-37_formated.flt.knn.avg.pcl downloaded from [SGD archives](http://sgd-archive.yeastgenome.org/expression/microarray/Gasch_2000_PMID_11102521/).
+
