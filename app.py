@@ -612,7 +612,7 @@ def update_output_tab2(n_clicks, list_of_contents, list_of_names):
                                     columns=[{'name': i, 'id': i, "selectable": True} for i in demo_2.columns],
                                     page_size=10,
                                     column_selectable="multi",
-                                    selected_columns=[demo_2.columns[0]],
+                                    selected_columns=[demo_2.columns[0], demo_2.columns[1]],
                                     style_cell={'textAlign': 'left'},
                                     style_data_conditional=[{'if': {'row_index': 'odd'},
                                                             'backgroundColor': 'rgb(248, 248, 248)'}],
