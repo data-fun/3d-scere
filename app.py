@@ -107,11 +107,11 @@ input_tab1 = html.Div(
                     "textAlign": "center",
                     "margin": "10px"},
                     multiple=True),
-                    dbc.Button("Load demo data", id="demo_tab1", outline=True, color="primary", className="mr-1", style={"vertical-align": "middle"}),
                     dcc.Loading(children=[html.Div(id="output_data_upload_tab1")]),
                 ]),
                 dbc.Col(
-                [
+                [dbc.Row(style={"height" : 63}),
+                dbc.Button("Load demo data", id="demo_tab1", outline=True, color="primary", className="mr-1", style={"vertical-align": "middle"})
                 ])
             ]),
             dbc.Row(style={"height" : 35}),
@@ -215,11 +215,11 @@ input_tab3 = html.Div(
                     "textAlign": "center",
                     "margin": "10px"},
                     multiple=True),
-                    dbc.Button("Load demo data", id="demo_tab3", outline=True, color="primary", className="mr-1", style={"vertical-align": "middle"}),
                     dcc.Loading(children=[html.Div(id="output_data_upload_tab3")]),
                 ]),
                 dbc.Col(
-                [
+                [dbc.Row(style={"height" : 63}),
+                dbc.Button("Load demo data", id="demo_tab3", outline=True, color="primary", className="mr-1", style={"vertical-align": "middle"})
                 ]),
             ]),
             dbc.Row(style={"height" : 25}),
