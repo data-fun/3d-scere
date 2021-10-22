@@ -7,6 +7,7 @@ import dash_core_components as dcc
 import dash_html_components as html
 import dash_bootstrap_components as dbc
 import dash_cytoscape as cyto
+import dash_table
 from dash.dependencies import Input, Output, State
 
 import networkx as nx
@@ -32,6 +33,9 @@ GO_terms_options = [{"label": GO, "value": GO} for GO in GO_terms["GO_terms"]]
 
 plotly_segments = pd.read_csv("./static/plotly_segments.csv")
 edges_list = pd.read_parquet("./static/3D_distances.parquet.gzip", engine="pyarrow")
+
+demo_1 = pd.read_csv("./example_data/gene_list_example_UPC2_38_targets.csv")
+demo_2 = pd.read_csv("./example_data/quantitative_variables_example.csv")
 
 # Get all features for all gene
 SQL_QUERY = \
@@ -103,6 +107,7 @@ input_tab1 = html.Div(
                     "textAlign": "center",
                     "margin": "10px"},
                     multiple=True),
+                    dbc.Button("Load demo data", id="demo_tab1", outline=True, color="primary", className="mr-1", style={"vertical-align": "middle"}),
                     dcc.Loading(children=[html.Div(id="output_data_upload_tab1")]),
                 ]),
                 dbc.Col(
@@ -163,6 +168,7 @@ input_tab2 = html.Div(
                     "textAlign": "center",
                     "margin": "10px"},
                     multiple=True),
+                    dbc.Button("Load demo data", id="demo_tab2", outline=True, color="primary", className="mr-1", style={"vertical-align": "middle"}),
                     dcc.Loading(children=[html.Div(id="output_data_upload_tab2")]),
                 ]),
                 dbc.Col(
@@ -209,6 +215,7 @@ input_tab3 = html.Div(
                     "textAlign": "center",
                     "margin": "10px"},
                     multiple=True),
+                    dbc.Button("Load demo data", id="demo_tab3", outline=True, color="primary", className="mr-1", style={"vertical-align": "middle"}),
                     dcc.Loading(children=[html.Div(id="output_data_upload_tab3")]),
                 ]),
                 dbc.Col(
@@ -392,14 +399,29 @@ app.layout = dbc.Container(
 
 ############TAB1_UPLOAD############
 @app.callback(Output("output_data_upload_tab1", "children"),
+              Input("demo_tab1", "n_clicks"),
               Input("upload_data_tab1", "contents"),
               State("upload_data_tab1", "filename"))
-def update_output(list_of_contents, list_of_names):
-    if list_of_contents is not None:
-        children=[
-            tools.parse_contents(c, n, "datatable_tab1") for c, n in
-            zip(list_of_contents, list_of_names)]
-        return children
+def update_output(n_clicks, list_of_contents, list_of_names):
+    ctx = dash.callback_context
+    button_id = ctx.triggered[0]['prop_id'].split('.')[0]
+
+    if button_id == "demo_tab1":
+        children = dash_table.DataTable(id="datatable_tab1",
+                                    data=demo_1.to_dict('records'),
+                                    columns=[{'name': i, 'id': i, "selectable": True} for i in demo_1.columns],
+                                    page_size=10,
+                                    column_selectable="multi",
+                                    selected_columns=[demo_1.columns[0]],
+                                    style_cell={'textAlign': 'left'},
+                                    style_data_conditional=[{'if': {'row_index': 'odd'},
+                                                            'backgroundColor': 'rgb(248, 248, 248)'}],
+                                                            style_header={'backgroundColor': 'rgb(230, 230, 230)',
+                                                                        'fontWeight': 'bold'})
+    else:
+        if list_of_contents is not None:
+            children=[tools.parse_contents(c, n, "datatable_tab1") for c, n in zip(list_of_contents, list_of_names)]
+    return children
 
 ############TAB1_UPLOAD_STYLE############
 @app.callback(
@@ -577,14 +599,29 @@ ORDER BY Start_coordinate
     return fig
 ############TAB2_UPLOAD############
 @app.callback(Output("output_data_upload_tab2", "children"),
+              Input("demo_tab2", "n_clicks"),
               Input("upload_data_tab2", "contents"),
               State("upload_data_tab2", "filename"))
-def update_output_tab2(list_of_contents, list_of_names):
-    if list_of_contents is not None:
-        children=[
-            tools.parse_contents(c, n, "datatable") for c, n in
-            zip(list_of_contents, list_of_names)]
-        return children
+def update_output_tab2(n_clicks, list_of_contents, list_of_names):
+    ctx = dash.callback_context
+    button_id = ctx.triggered[0]['prop_id'].split('.')[0]
+
+    if button_id == "demo_tab2":
+        children = dash_table.DataTable(id="datatable",
+                                    data=demo_2.to_dict('records'),
+                                    columns=[{'name': i, 'id': i, "selectable": True} for i in demo_2.columns],
+                                    page_size=10,
+                                    column_selectable="multi",
+                                    selected_columns=[demo_2.columns[0]],
+                                    style_cell={'textAlign': 'left'},
+                                    style_data_conditional=[{'if': {'row_index': 'odd'},
+                                                            'backgroundColor': 'rgb(248, 248, 248)'}],
+                                                            style_header={'backgroundColor': 'rgb(230, 230, 230)',
+                                                                        'fontWeight': 'bold'})
+    else:
+        if list_of_contents is not None:
+            children=[tools.parse_contents(c, n, "datatable") for c, n in zip(list_of_contents, list_of_names)]
+    return children
 
 ############TAB2_COLUMN_SELECTION_UPLOAD############
 @app.callback(
@@ -645,14 +682,29 @@ ORDER BY Start_coordinate
 
 ############TAB3_UPLOAD############
 @app.callback(Output("output_data_upload_tab3", "children"),
+              Input("demo_tab3", "n_clicks"),
               Input("upload_data_tab3", "contents"),
               State("upload_data_tab3", "filename"))
-def update_output_tab3(list_of_contents, list_of_names):
-    if list_of_contents is not None:
-        children=[
-            tools.parse_contents(c, n, "datatable_tab3") for c, n in
-            zip(list_of_contents, list_of_names)]
-        return children
+def update_output_tab3(n_clicks, list_of_contents, list_of_names):
+    ctx = dash.callback_context
+    button_id = ctx.triggered[0]['prop_id'].split('.')[0]
+
+    if button_id == "demo_tab3":
+        children = dash_table.DataTable(id="datatable_tab3",
+                                    data=demo_1.to_dict('records'),
+                                    columns=[{'name': i, 'id': i, "selectable": True} for i in demo_1.columns],
+                                    page_size=10,
+                                    column_selectable="multi",
+                                    selected_columns=[demo_1.columns[0]],
+                                    style_cell={'textAlign': 'left'},
+                                    style_data_conditional=[{'if': {'row_index': 'odd'},
+                                                            'backgroundColor': 'rgb(248, 248, 248)'}],
+                                                            style_header={'backgroundColor': 'rgb(230, 230, 230)',
+                                                                        'fontWeight': 'bold'})
+    else:
+        if list_of_contents is not None:
+            children=[tools.parse_contents(c, n, "datatable_tab3") for c, n in zip(list_of_contents, list_of_names)]
+    return children
 
 ############TAB3_UPLOAD_STYLE############
 @app.callback(
