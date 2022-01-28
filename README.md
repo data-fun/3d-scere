@@ -1,5 +1,9 @@
 # 3d-scere
 
+## What is 3D-Scere ?
+
+3D-Scere is an open-source tool for interactive visualization and exploration. Source code is available here. The tool is also freely usable online at https://3d-scere.ijm.fr/. It allows the visualization of any list of genes in the context of the 3D model of S. cerevisiae genome. Further information can easily be added, like functional annotations (GO terms) or gene expression measurements. Qualitative or quantitative functional properties are highlighted in the large-scale 3D context of the genome with only a few mouse clicks.
+
 ## Setup your environment
 
 Clone the repository:
